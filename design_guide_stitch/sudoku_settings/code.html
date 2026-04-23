@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sudoku Lithograph - Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#f0f0f2",
+                    "on-surface": "#1a1c1d",
+                    "tertiary": "#002c1b",
+                    "on-secondary-fixed": "#001c39",
+                    "surface-container-low": "#f3f3f5",
+                    "surface-container-high": "#e8e8ea",
+                    "primary-fixed-dim": "#bac6ec",
+                    "secondary": "#0060ac",
+                    "on-primary-container": "#98a4c9",
+                    "surface": "#f9f9fb",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed-variant": "#004883",
+                    "primary": "#182442",
+                    "secondary-fixed-dim": "#a4c9ff",
+                    "surface-bright": "#f9f9fb",
+                    "inverse-surface": "#2f3132",
+                    "tertiary-container": "#00442d",
+                    "on-tertiary-fixed-variant": "#0e5138",
+                    "tertiary-fixed": "#b1f0ce",
+                    "on-error-container": "#93000a",
+                    "error-container": "#ffdad6",
+                    "surface-container-lowest": "#ffffff",
+                    "background": "#f9f9fb",
+                    "surface-dim": "#d9dadc",
+                    "surface-tint": "#525e7f",
+                    "on-tertiary-fixed": "#002114",
+                    "primary-container": "#2e3a59",
+                    "primary-fixed": "#dae2ff",
+                    "inverse-primary": "#bac6ec",
+                    "on-secondary-container": "#003e73",
+                    "on-secondary": "#ffffff",
+                    "surface-variant": "#e2e2e4",
+                    "on-error": "#ffffff",
+                    "on-background": "#1a1c1d",
+                    "surface-container-highest": "#e2e2e4",
+                    "outline-variant": "#c6c6ce",
+                    "on-primary-fixed-variant": "#3a4666",
+                    "secondary-fixed": "#d4e3ff",
+                    "secondary-container": "#68abff",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed": "#0d1a38",
+                    "on-tertiary-container": "#74b292",
+                    "tertiary-fixed-dim": "#95d4b3",
+                    "outline": "#75777e",
+                    "on-surface-variant": "#45464e",
+                    "on-tertiary": "#ffffff",
+                    "surface-container": "#eeeef0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .settings-card-shadow {
+            box-shadow: 0 12px 32px rgba(26, 28, 29, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- TopAppBar Execution -->
+<header class="bg-[#f3f3f5] dark:bg-[#232426] w-full top-0 px-6 py-4 fixed z-40">
+<div class="flex justify-between items-center w-full max-w-screen-xl mx-auto">
+<div class="flex items-center gap-4">
+<button class="Active: scale-95 transition-transform duration-150 hover:opacity-80">
+<span class="material-symbols-outlined text-[#182442] dark:text-[#d4e3ff]">arrow_back</span>
+</button>
+<h1 class="font-['Manrope'] tracking-tight font-semibold text-xl font-bold tracking-tighter text-[#182442] dark:text-[#f9f9fb]">
+                    Sudoku Lithograph
+                </h1>
+</div>
+<div class="hidden md:flex gap-6">
+<span class="text-[#45464e] dark:text-[#c6c6ce] cursor-pointer hover:opacity-80 transition-opacity">Play</span>
+<span class="text-[#45464e] dark:text-[#c6c6ce] cursor-pointer hover:opacity-80 transition-opacity">Daily</span>
+<span class="text-[#45464e] dark:text-[#c6c6ce] cursor-pointer hover:opacity-80 transition-opacity font-bold">Settings</span>
+</div>
+<div class="Active: scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[#182442] dark:text-[#f9f9fb]" data-icon="settings">settings</span>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
+<!-- Settings Container -->
+<section class="space-y-8">
+<header class="mb-10">
+<h2 class="font-headline text-3xl font-extrabold tracking-tight text-primary">Settings</h2>
+<p class="text-on-surface-variant mt-2 text-sm">Personalize your solving experience.</p>
+</header>
+<!-- Gameplay Settings Group -->
+<div class="space-y-4">
+<h3 class="text-xs font-bold uppercase tracking-widest text-outline py-2 border-b border-outline-variant/15">Gameplay</h3>
+<!-- Toggle Item: Sound -->
+<div class="flex items-center justify-between py-4 bg-surface-container-lowest px-4 rounded-xl settings-card-shadow">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">volume_up</span>
+</div>
+<div>
+<p class="font-semibold text-primary">Sound Effects</p>
+<p class="text-xs text-on-surface-variant">Audible feedback for interactions</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+<!-- Toggle Item: Highlight Conflicts -->
+<div class="flex items-center justify-between py-4 bg-surface-container-lowest px-4 rounded-xl settings-card-shadow">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">error</span>
+</div>
+<div>
+<p class="font-semibold text-primary">Highlight Conflicts</p>
+<p class="text-xs text-on-surface-variant">Mark cells with duplicate numbers</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+<!-- Toggle Item: Highlight Related -->
+<div class="flex items-center justify-between py-4 bg-surface-container-lowest px-4 rounded-xl settings-card-shadow">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">grid_guides</span>
+</div>
+<div>
+<p class="font-semibold text-primary">Highlight Related Cells</p>
+<p class="text-xs text-on-surface-variant">Highlight row, column and block</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+<!-- Toggle Item: Highlight Same -->
+<div class="flex items-center justify-between py-4 bg-surface-container-lowest px-4 rounded-xl settings-card-shadow">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">filter_center_focus</span>
+</div>
+<div>
+<p class="font-semibold text-primary">Highlight Same Numbers</p>
+<p class="text-xs text-on-surface-variant">Mark all instances of a selected digit</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+</div>
+<!-- Information Settings Group -->
+<div class="space-y-4">
+<h3 class="text-xs font-bold uppercase tracking-widest text-outline py-2 border-b border-outline-variant/15">Information</h3>
+<div class="bg-surface-container-low rounded-xl p-4 space-y-1">
+<div class="flex justify-between items-center py-3 border-b border-outline-variant/10 cursor-pointer hover:bg-surface-container-highest/30 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">help_outline</span>
+<span class="font-medium">How to Play</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+<div class="flex justify-between items-center py-3 border-b border-outline-variant/10 cursor-pointer hover:bg-surface-container-highest/30 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">info</span>
+<span class="font-medium">About Sudoku Lithograph</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+<div class="flex justify-between items-center py-3">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">terminal</span>
+<span class="font-medium">App Version</span>
+</div>
+<span class="text-on-surface-variant text-sm font-mono">v2.4.1-stable</span>
+</div>
+</div>
+</div>
+<!-- Visual Decorative Element -->
+<div class="pt-8 opacity-40">
+<div class="w-full h-32 rounded-xl overflow-hidden grayscale">
+<img alt="Geometric architectural lines" class="w-full h-full object-cover" data-alt="Monochromatic architectural photograph showing clean sharp geometric lines and shadows of a minimalist concrete building structure" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsR3V5VqCihPGEcQ7EpOul_tkT3AcpxseOn7ofBo3uQr7uVUIqt7x6tE8VysKToZUyuQRX9BMOsr1kV6Eeg3oaegp1FDYRmJJ45JOxxum2WEAH1pCKigLnboJf3trzdmXsXg4gcKbStvMyx_E71XLh2BBh29ZT8ivyTMgVDqyE8T1q7giRrx-RjeMoceesN3qTT5Ib9EFbmuq3kps_gqnE2Of32TTrQVWillpML3uEIjBtMkupuO2wFEENi3vGNMIV-BLxaUVoJ_8"/>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Suppression Check: Suppressed for Settings task focus as per mandate -->
+<!-- However, the prompt implies "simple list-style settings" for an app. 
+         If this were a top-level screen, it would show. Given it's a "Panel/Modal" intent, 
+         we prioritize the back button in the header. -->
+<!-- Mobile Bottom Navigation (Visible only on small screens) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-[#f3f3f5] dark:bg-[#1a1c1d] shadow-[0_-4px_24px_rgba(26,28,29,0.04)] rounded-t-xl">
+<div class="flex flex-col items-center justify-center text-[#45464e] dark:text-[#c6c6ce] px-5 py-1.5 hover:bg-[#e8e8ea] dark:hover:bg-[#2e3a59]/50 transition-all Active: scale-95">
+<span class="material-symbols-outlined" data-icon="grid_on">grid_on</span>
+<span class="font-['Inter'] text-[11px] font-medium">Play</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#45464e] dark:text-[#c6c6ce] px-5 py-1.5 hover:bg-[#e8e8ea] dark:hover:bg-[#2e3a59]/50 transition-all Active: scale-95">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-['Inter'] text-[11px] font-medium">Daily</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#45464e] dark:text-[#c6c6ce] px-5 py-1.5 hover:bg-[#e8e8ea] dark:hover:bg-[#2e3a59]/50 transition-all Active: scale-95">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-['Inter'] text-[11px] font-medium">Stats</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-[#d4e3ff] dark:bg-[#2e3a59] text-[#182442] dark:text-[#ffffff] rounded-xl px-5 py-1.5 transition-all Active: scale-95">
+<span class="material-symbols-outlined" data-icon="palette">palette</span>
+<span class="font-['Inter'] text-[11px] font-medium">Themes</span>
+</div>
+</nav>
+</body></html>

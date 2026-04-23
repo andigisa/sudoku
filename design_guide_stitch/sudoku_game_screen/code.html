@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f0f0f2",
+                        "on-surface": "#1a1c1d",
+                        "tertiary": "#002c1b",
+                        "on-secondary-fixed": "#001c39",
+                        "surface-container-low": "#f3f3f5",
+                        "surface-container-high": "#e8e8ea",
+                        "primary-fixed-dim": "#bac6ec",
+                        "secondary": "#0060ac",
+                        "on-primary-container": "#98a4c9",
+                        "surface": "#f9f9fb",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#004883",
+                        "primary": "#182442",
+                        "secondary-fixed-dim": "#a4c9ff",
+                        "surface-bright": "#f9f9fb",
+                        "inverse-surface": "#2f3132",
+                        "tertiary-container": "#00442d",
+                        "on-tertiary-fixed-variant": "#0e5138",
+                        "tertiary-fixed": "#b1f0ce",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "background": "#f9f9fb",
+                        "surface-dim": "#d9dadc",
+                        "surface-tint": "#525e7f",
+                        "on-tertiary-fixed": "#002114",
+                        "primary-container": "#2e3a59",
+                        "primary-fixed": "#dae2ff",
+                        "inverse-primary": "#bac6ec",
+                        "on-secondary-container": "#003e73",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#e2e2e4",
+                        "on-error": "#ffffff",
+                        "on-background": "#1a1c1d",
+                        "surface-container-highest": "#e2e2e4",
+                        "outline-variant": "#c6c6ce",
+                        "on-primary-fixed-variant": "#3a4666",
+                        "secondary-fixed": "#d4e3ff",
+                        "secondary-container": "#68abff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#0d1a38",
+                        "on-tertiary-container": "#74b292",
+                        "tertiary-fixed-dim": "#95d4b3",
+                        "outline": "#75777e",
+                        "on-surface-variant": "#45464e",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#eeeef0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .grid-no-border {
+            border: none !important;
+        }
+        .ghost-border {
+            border: 1px solid rgba(198, 198, 206, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-secondary-fixed">
+<header class="bg-[#f3f3f5] dark:bg-[#232426] w-full top-0 px-6 py-4 fixed z-50">
+<div class="flex justify-between items-center w-full max-w-screen-xl mx-auto">
+<div class="text-xl font-bold tracking-tighter text-[#182442] dark:text-[#f9f9fb] font-headline">Sudoku Lithograph</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-[#182442] dark:text-[#f9f9fb] hover:opacity-80 transition-opacity Active: scale-95 transition-transform duration-150">settings</button>
+</div>
+</div>
+</header>
+<main class="min-h-screen pt-24 pb-32 px-4 flex flex-col items-center">
+<section class="w-full max-w-md mb-8 flex justify-between items-end">
+<div class="flex flex-col">
+<span class="text-on-surface-variant text-xs font-label uppercase tracking-widest mb-1">Mode</span>
+<h2 class="text-xl font-headline font-extrabold tracking-tight text-primary">Expert Mode</h2>
+</div>
+<div class="flex flex-col items-end">
+<div class="flex gap-4 mb-2">
+<div class="text-center">
+<span class="block text-[10px] text-on-surface-variant font-label uppercase tracking-tighter">Mistakes</span>
+<span class="font-headline font-bold text-primary">0/3</span>
+</div>
+<div class="text-center">
+<span class="block text-[10px] text-on-surface-variant font-label uppercase tracking-tighter">Timer</span>
+<span class="font-headline font-bold text-primary">04:22</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="bg-surface-container-low text-primary px-3 py-1 rounded-full text-xs font-semibold hover:opacity-80 transition-all active:scale-95">Pause</button>
+<button class="bg-primary text-on-primary px-3 py-1 rounded-full text-xs font-semibold hover:opacity-80 transition-all active:scale-95">New Game</button>
+</div>
+</div>
+</section>
+<div class="w-full max-w-md bg-surface-container-lowest p-1 rounded-lg shadow-sm mb-8">
+<div class="grid grid-cols-9 gap-[1px] bg-outline-variant/20 rounded-sm overflow-hidden">
+<!-- Sudoku Cells Simulation -->
+<!-- Row 1 -->
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-primary font-semibold text-lg font-body">5</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-secondary font-medium text-lg font-body">3</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-primary font-semibold text-lg font-body">7</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<!-- Row 2 -->
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-primary font-semibold text-lg font-body">6</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-primary font-semibold text-lg font-body">1</div>
+<div class="aspect-square flex items-center justify-center bg-secondary-fixed text-primary font-bold text-lg font-body">9</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-primary font-semibold text-lg font-body">5</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<!-- Row 3 (Highlighted Column/Row example) -->
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-primary font-semibold text-lg font-body">9</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-primary font-semibold text-lg font-body">8</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-primary font-semibold text-lg font-body">6</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<!-- Row 4 -->
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-primary font-semibold text-lg font-body">8</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-primary font-semibold text-lg font-body">6</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-primary font-semibold text-lg font-body">3</div>
+<!-- Row 5 (Central row focus) -->
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-primary font-semibold text-lg font-body">4</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-secondary-fixed-dim/40 text-primary font-semibold text-lg font-body">8</div>
+<div class="aspect-square flex items-center justify-center bg-secondary-fixed text-primary font-bold text-lg font-body">2</div>
+<div class="aspect-square flex items-center justify-center bg-secondary-fixed-dim/40 text-primary font-semibold text-lg font-body">3</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-primary font-semibold text-lg font-body">1</div>
+<!-- Row 6 -->
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-primary font-semibold text-lg font-body">7</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-primary font-semibold text-lg font-body">2</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-error-container text-error font-medium text-lg font-body">6</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-primary font-semibold text-lg font-body">6</div>
+<!-- Row 7 -->
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-primary font-semibold text-lg font-body">6</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-primary font-semibold text-lg font-body">2</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-primary font-semibold text-lg font-body">8</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<!-- Row 8 -->
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-primary font-semibold text-lg font-body">4</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-primary font-semibold text-lg font-body">1</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-primary font-semibold text-lg font-body">9</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-primary font-semibold text-lg font-body">5</div>
+<!-- Row 9 -->
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-primary font-semibold text-lg font-body">8</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-high/40 text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-on-surface-variant font-medium text-lg font-body"></div>
+<div class="aspect-square flex items-center justify-center bg-secondary text-on-secondary font-medium text-lg font-body rounded-sm">7</div>
+<div class="aspect-square flex items-center justify-center bg-surface-container-lowest text-primary font-semibold text-lg font-body">9</div>
+</div>
+</div>
+<div class="w-full max-w-md flex justify-between gap-2 mb-8">
+<button class="flex-1 bg-surface-container-low hover:bg-surface-container-high py-3 rounded-xl flex flex-col items-center justify-center transition-all group active:scale-95">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform mb-1">undo</span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Undo</span>
+</button>
+<button class="flex-1 bg-surface-container-low hover:bg-surface-container-high py-3 rounded-xl flex flex-col items-center justify-center transition-all group active:scale-95">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform mb-1">history</span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Redo</span>
+</button>
+<button class="flex-1 bg-surface-container-low hover:bg-surface-container-high py-3 rounded-xl flex flex-col items-center justify-center transition-all group active:scale-95">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform mb-1">backspace</span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Erase</span>
+</button>
+<button class="flex-1 bg-primary py-3 rounded-xl flex flex-col items-center justify-center transition-all group active:scale-95">
+<span class="material-symbols-outlined text-on-primary mb-1" style="font-variation-settings: 'FILL' 1;">edit</span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-primary-fixed">Notes: On</span>
+</button>
+</div>
+<div class="w-full max-w-md grid grid-cols-5 gap-2 mb-12">
+<button class="aspect-square bg-primary text-on-primary rounded-xl text-2xl font-headline font-bold flex items-center justify-center hover:opacity-90 active:scale-90 transition-all">1</button>
+<button class="aspect-square bg-primary text-on-primary rounded-xl text-2xl font-headline font-bold flex items-center justify-center hover:opacity-90 active:scale-90 transition-all">2</button>
+<button class="aspect-square bg-primary text-on-primary rounded-xl text-2xl font-headline font-bold flex items-center justify-center hover:opacity-90 active:scale-90 transition-all">3</button>
+<button class="aspect-square bg-primary text-on-primary rounded-xl text-2xl font-headline font-bold flex items-center justify-center hover:opacity-90 active:scale-90 transition-all">4</button>
+<button class="aspect-square bg-primary text-on-primary rounded-xl text-2xl font-headline font-bold flex items-center justify-center hover:opacity-90 active:scale-90 transition-all">5</button>
+<button class="aspect-square bg-primary text-on-primary rounded-xl text-2xl font-headline font-bold flex items-center justify-center hover:opacity-90 active:scale-90 transition-all">6</button>
+<button class="aspect-square bg-primary text-on-primary rounded-xl text-2xl font-headline font-bold flex items-center justify-center hover:opacity-90 active:scale-90 transition-all">7</button>
+<button class="aspect-square bg-primary text-on-primary rounded-xl text-2xl font-headline font-bold flex items-center justify-center hover:opacity-90 active:scale-90 transition-all">8</button>
+<button class="aspect-square bg-primary text-on-primary rounded-xl text-2xl font-headline font-bold flex items-center justify-center hover:opacity-90 active:scale-90 transition-all">9</button>
+<button class="aspect-square bg-surface-container-high text-primary rounded-xl text-lg font-headline font-bold flex items-center justify-center hover:opacity-90 active:scale-90 transition-all">
+<span class="material-symbols-outlined">lightbulb</span>
+</button>
+</div>
+</main>
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-[#f3f3f5] dark:bg-[#1a1c1d] shadow-[0_-4px_24px_rgba(26,28,29,0.04)] rounded-t-xl">
+<div class="flex flex-col items-center justify-center bg-[#d4e3ff] dark:bg-[#2e3a59] text-[#182442] dark:text-[#ffffff] rounded-xl px-5 py-1.5 transition-all duration-200 Active: scale-95">
+<span class="material-symbols-outlined">grid_on</span>
+<span class="font-['Inter'] text-[11px] font-medium">Play</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#45464e] dark:text-[#c6c6ce] px-5 py-1.5 hover:bg-[#e8e8ea] dark:hover:bg-[#2e3a59]/50 transition-all duration-200 Active: scale-95">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-['Inter'] text-[11px] font-medium">Daily</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#45464e] dark:text-[#c6c6ce] px-5 py-1.5 hover:bg-[#e8e8ea] dark:hover:bg-[#2e3a59]/50 transition-all duration-200 Active: scale-95">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-['Inter'] text-[11px] font-medium">Stats</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#45464e] dark:text-[#c6c6ce] px-5 py-1.5 hover:bg-[#e8e8ea] dark:hover:bg-[#2e3a59]/50 transition-all duration-200 Active: scale-95">
+<span class="material-symbols-outlined">palette</span>
+<span class="font-['Inter'] text-[11px] font-medium">Themes</span>
+</div>
+</nav>
+</body></html>

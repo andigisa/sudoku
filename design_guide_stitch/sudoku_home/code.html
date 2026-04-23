@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sudoku Lithograph</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f0f0f2",
+                        "on-surface": "#1a1c1d",
+                        "tertiary": "#002c1b",
+                        "on-secondary-fixed": "#001c39",
+                        "surface-container-low": "#f3f3f5",
+                        "surface-container-high": "#e8e8ea",
+                        "primary-fixed-dim": "#bac6ec",
+                        "secondary": "#0060ac",
+                        "on-primary-container": "#98a4c9",
+                        "surface": "#f9f9fb",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#004883",
+                        "primary": "#182442",
+                        "secondary-fixed-dim": "#a4c9ff",
+                        "surface-bright": "#f9f9fb",
+                        "inverse-surface": "#2f3132",
+                        "tertiary-container": "#00442d",
+                        "on-tertiary-fixed-variant": "#0e5138",
+                        "tertiary-fixed": "#b1f0ce",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "background": "#f9f9fb",
+                        "surface-dim": "#d9dadc",
+                        "surface-tint": "#525e7f",
+                        "on-tertiary-fixed": "#002114",
+                        "primary-container": "#2e3a59",
+                        "primary-fixed": "#dae2ff",
+                        "inverse-primary": "#bac6ec",
+                        "on-secondary-container": "#003e73",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#e2e2e4",
+                        "on-error": "#ffffff",
+                        "on-background": "#1a1c1d",
+                        "surface-container-highest": "#e2e2e4",
+                        "outline-variant": "#c6c6ce",
+                        "on-primary-fixed-variant": "#3a4666",
+                        "secondary-fixed": "#d4e3ff",
+                        "secondary-container": "#68abff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#0d1a38",
+                        "on-tertiary-container": "#74b292",
+                        "tertiary-fixed-dim": "#95d4b3",
+                        "outline": "#75777e",
+                        "on-surface-variant": "#45464e",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#eeeef0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-[#f9f9fb] dark:bg-[#1a1c1d] w-full top-0 px-6 py-4 fixed z-50">
+<div class="flex justify-between items-center w-full max-w-screen-xl mx-auto">
+<h1 class="text-xl font-bold tracking-tighter text-[#182442] dark:text-[#f9f9fb]">Sudoku Lithograph</h1>
+<div class="flex items-center gap-4">
+<button class="text-[#45464e] dark:text-[#c6c6ce] hover:opacity-80 transition-opacity Active: scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-grow pt-24 pb-32 px-6 max-w-screen-xl mx-auto w-full">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Left Column: Hero & Resume -->
+<div class="lg:col-span-7 space-y-8">
+<section class="mt-8">
+<p class="text-on-surface-variant font-medium tracking-tight mb-2 uppercase text-xs">Current Session</p>
+<div class="relative overflow-hidden rounded-xl bg-surface-container-low p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 group">
+<!-- Abstract Lithograph Background Element -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-secondary-fixed/20 blur-[80px] -mr-32 -mt-32"></div>
+<div class="relative z-10">
+<h2 class="text-3xl font-extrabold tracking-tight text-primary mb-2">Hard Puzzle</h2>
+<p class="text-on-surface-variant body-sm">74 cells filled • 12:45 elapsed</p>
+</div>
+<button class="relative z-10 bg-primary text-on-primary px-8 py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-3 shadow-lg shadow-primary/10 hover:opacity-90 active:scale-95 transition-all">
+                            Continue
+                            <span class="material-symbols-outlined" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+</section>
+<!-- Difficulty Selection -->
+<section>
+<h2 class="text-xl font-bold tracking-tight text-primary mb-6">New Game</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<button class="bg-surface-container-lowest p-6 rounded-xl flex flex-col items-center justify-center gap-3 transition-all hover:bg-surface-container hover:shadow-sm active:scale-95 border border-transparent">
+<span class="material-symbols-outlined text-secondary" data-icon="filter_1">filter_1</span>
+<span class="font-semibold text-primary">Easy</span>
+</button>
+<button class="bg-surface-container-lowest p-6 rounded-xl flex flex-col items-center justify-center gap-3 transition-all hover:bg-surface-container hover:shadow-sm active:scale-95 border border-transparent">
+<span class="material-symbols-outlined text-secondary" data-icon="filter_2">filter_2</span>
+<span class="font-semibold text-primary">Medium</span>
+</button>
+<button class="bg-surface-container-lowest p-6 rounded-xl flex flex-col items-center justify-center gap-3 transition-all hover:bg-surface-container hover:shadow-sm active:scale-95 border border-transparent">
+<span class="material-symbols-outlined text-secondary" data-icon="filter_3">filter_3</span>
+<span class="font-semibold text-primary">Hard</span>
+</button>
+<button class="bg-primary-container text-on-primary-container p-6 rounded-xl flex flex-col items-center justify-center gap-3 transition-all hover:opacity-90 active:scale-95">
+<span class="material-symbols-outlined text-secondary-fixed" data-icon="bolt">bolt</span>
+<span class="font-semibold">Expert</span>
+</button>
+</div>
+</section>
+</div>
+<!-- Right Column: Stats & Meta -->
+<div class="lg:col-span-5 space-y-8 lg:mt-8">
+<!-- Stats Summary Card -->
+<section class="bg-surface-container-low rounded-xl p-8">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-xl font-bold tracking-tight text-primary">Your Progress</h2>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="insights">insights</span>
+</div>
+<div class="grid grid-cols-2 gap-y-8 gap-x-4">
+<div class="flex flex-col">
+<span class="text-3xl font-extrabold tracking-tight text-primary">124</span>
+<span class="text-xs font-medium text-on-surface-variant uppercase tracking-wider mt-1">Games Played</span>
+</div>
+<div class="flex flex-col">
+<span class="text-3xl font-extrabold tracking-tight text-primary">82%</span>
+<span class="text-xs font-medium text-on-surface-variant uppercase tracking-wider mt-1">Win Rate</span>
+</div>
+<div class="flex flex-col">
+<span class="text-3xl font-extrabold tracking-tight text-primary">05:12</span>
+<span class="text-xs font-medium text-on-surface-variant uppercase tracking-wider mt-1">Best Time (Med)</span>
+</div>
+<div class="flex flex-col">
+<span class="text-3xl font-extrabold tracking-tight text-primary">12</span>
+<span class="text-xs font-medium text-on-surface-variant uppercase tracking-wider mt-1">Day Streak</span>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-outline-variant/20">
+<button class="w-full flex items-center justify-between text-secondary font-semibold hover:opacity-80 transition-opacity">
+                            View detailed statistics
+                            <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</section>
+<!-- Daily Challenge Card -->
+<section class="relative overflow-hidden rounded-xl p-8 bg-[#182442] text-white">
+<div class="absolute inset-0 opacity-10">
+<div class="grid grid-cols-6 gap-2 rotate-12 -translate-y-12 translate-x-12">
+<div class="w-12 h-12 border border-white/40 rounded-sm"></div>
+<div class="w-12 h-12 border border-white/40 rounded-sm"></div>
+<div class="w-12 h-12 border border-white/40 rounded-sm"></div>
+<div class="w-12 h-12 border border-white/40 rounded-sm"></div>
+<div class="w-12 h-12 border border-white/40 rounded-sm"></div>
+<div class="w-12 h-12 border border-white/40 rounded-sm"></div>
+</div>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-tertiary-fixed" data-icon="event_note">event_note</span>
+<span class="text-xs font-bold uppercase tracking-[0.2em] text-secondary-fixed">Daily Challenge</span>
+</div>
+<h3 class="text-2xl font-bold mb-2">October 24</h3>
+<p class="text-on-primary-container text-sm mb-6">Complete today's unique board to earn the "Inkwell" badge.</p>
+<button class="bg-secondary-fixed text-primary px-6 py-2.5 rounded-full font-bold text-sm hover:bg-white transition-colors">
+                            Play Now
+                        </button>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-[#f3f3f5] dark:bg-[#1a1c1d] shadow-[0_-4px_24px_rgba(26,28,29,0.04)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center bg-[#d4e3ff] dark:bg-[#2e3a59] text-[#182442] dark:text-[#ffffff] rounded-xl px-5 py-1.5 Active: scale-95 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="grid_on" style="font-variation-settings: 'FILL' 1;">grid_on</span>
+<span class="font-['Inter'] text-[11px] font-medium">Play</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#45464e] dark:text-[#c6c6ce] px-5 py-1.5 hover:bg-[#e8e8ea] dark:hover:bg-[#2e3a59]/50 Active: scale-95 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-['Inter'] text-[11px] font-medium">Daily</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#45464e] dark:text-[#c6c6ce] px-5 py-1.5 hover:bg-[#e8e8ea] dark:hover:bg-[#2e3a59]/50 Active: scale-95 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-['Inter'] text-[11px] font-medium">Stats</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#45464e] dark:text-[#c6c6ce] px-5 py-1.5 hover:bg-[#e8e8ea] dark:hover:bg-[#2e3a59]/50 Active: scale-95 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="palette">palette</span>
+<span class="font-['Inter'] text-[11px] font-medium">Themes</span>
+</a>
+</nav>
+</body></html>
