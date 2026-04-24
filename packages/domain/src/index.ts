@@ -21,6 +21,7 @@ export interface SerializedGameState {
   completedAt: string | null;
   mistakes: number;
   gameOver: boolean;
+  hintsUsed: number;
 }
 
 const GRID_SIZE = 81;
@@ -48,7 +49,8 @@ export function createGameState(puzzle: PuzzleDefinition): SerializedGameState {
     paused: false,
     completedAt: null,
     mistakes: 0,
-    gameOver: false
+    gameOver: false,
+    hintsUsed: 0
   };
 }
 
@@ -78,7 +80,8 @@ export function deserializeGameState(raw: string): SerializedGameState {
     board: [...parsed.board],
     notes: parsed.notes.map((values) => [...values]),
     mistakes: parsed.mistakes ?? 0,
-    gameOver: parsed.gameOver ?? false
+    gameOver: parsed.gameOver ?? false,
+    hintsUsed: parsed.hintsUsed ?? 0
   };
 }
 
@@ -154,6 +157,26 @@ export function setCellValue(
   next.mistakes = isMistake ? state.mistakes + 1 : state.mistakes;
   next.gameOver = next.mistakes >= 3;
   next.completedAt = !next.gameOver && isSolved(next.board) ? new Date().toISOString() : null;
+  return next;
+}
+
+export function applyHint(
+  state: SerializedGameState,
+  cellIndex: number,
+  correctValue: number
+): SerializedGameState {
+  assertValidIndex(cellIndex);
+  assertValidValue(correctValue);
+
+  if (isGivenCell(state, cellIndex) || state.completedAt || state.gameOver) {
+    return state;
+  }
+
+  const next = cloneGameState(state);
+  next.board[cellIndex] = correctValue;
+  next.notes[cellIndex] = [];
+  next.hintsUsed += 1;
+  next.completedAt = isSolved(next.board) ? new Date().toISOString() : null;
   return next;
 }
 

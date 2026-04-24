@@ -83,6 +83,10 @@ export async function listCompletedGames(limit = 8): Promise<CompletedGameRecord
   return db.completedGames.orderBy("completedAt").reverse().limit(limit).toArray();
 }
 
+export async function listAllCompletedGames(): Promise<CompletedGameRecord[]> {
+  return db.completedGames.orderBy("completedAt").reverse().toArray();
+}
+
 export async function saveSyncVersion(version: number): Promise<void> {
   await db.syncMeta.put({ key: "syncVersion", value: String(version) });
 }

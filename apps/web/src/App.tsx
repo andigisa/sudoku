@@ -3,11 +3,15 @@ import type { DifficultyDto, DailyChallengeResponseDto, PuzzleResponseDto, Sessi
 import TournamentCard from "./components/TournamentCard";
 import TournamentView from "./views/TournamentView";
 import LeaderboardView from "./views/LeaderboardView";
+import StatsView from "./views/StatsView";
 import AuthModal from "./components/AuthModal";
 import AccountSettings from "./components/AccountSettings";
+import ThemePickerModal from "./components/ThemePickerModal";
 import { fetchCurrentTournament, submitTournamentEntry } from "./api/tournaments";
 import { fetchMe } from "./api/auth";
+import { applyThemeVars } from "./themes";
 import {
+  applyHint,
   applyInput,
   clearCell,
   cloneGameState,
@@ -34,7 +38,7 @@ import {
   type CompletedGameRecord
 } from "./storage";
 
-type ViewState = "home" | "game" | "tournament" | "leaderboard";
+type ViewState = "home" | "game" | "tournament" | "leaderboard" | "stats";
 
 interface HistoryState {
   past: SerializedGameState[];
@@ -75,6 +79,9 @@ export default function App() {
   const [user, setUser] = useState<UserProfileDto | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
+  const [themeId, setThemeId] = useState("default");
+  const [themeModalOpen, setThemeModalOpen] = useState(false);
+  const solutionRef = useRef<string | null>(null);
   const completionLoggedRef = useRef<string | null>(null);
   const serverSyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -84,8 +91,9 @@ export default function App() {
       loadSetting("highlightConflicts"),
       loadSetting("highlightMatches"),
       loadSetting("sessionId"),
+      loadSetting("theme"),
       listCompletedGames()
-    ]).then(([savedGame, savedConflictSetting, savedMatchSetting, savedSessionId, completed]) => {
+    ]).then(([savedGame, savedConflictSetting, savedMatchSetting, savedSessionId, savedTheme, completed]) => {
       if (savedGame) {
         setHistory({ past: [], present: savedGame, future: [] });
       }
@@ -93,6 +101,7 @@ export default function App() {
       setHighlightConflicts(savedConflictSetting !== "false");
       setHighlightMatches(savedMatchSetting !== "false");
       setSessionId(savedSessionId ?? null);
+      if (savedTheme) setThemeId(savedTheme);
       setCompletedGames(completed);
     });
 
@@ -102,6 +111,11 @@ export default function App() {
     // Check for existing auth session
     fetchMe().then((res) => { if (res) setUser(res.user); }).catch(() => null);
   }, []);
+
+  useEffect(() => {
+    applyThemeVars(themeId);
+    localStorage.setItem("sudoku-theme", themeId);
+  }, [themeId]);
 
   useEffect(() => {
     if (!history.present || history.present.paused || history.present.completedAt) {
@@ -244,6 +258,9 @@ export default function App() {
       } else if (event.key.toLowerCase() === "n") {
         event.preventDefault();
         updateGame((state) => toggleNoteMode(state));
+      } else if (event.key.toLowerCase() === "h") {
+        event.preventDefault();
+        handleHint();
       } else if (event.key === "ArrowUp") {
         event.preventDefault();
         moveSelection(-9);
@@ -338,6 +355,7 @@ export default function App() {
       }
 
       const puzzle = (await response.json()) as PuzzleResponseDto;
+      solutionRef.current = puzzle.solution;
       const state = createGameState({
         puzzleId: puzzle.puzzle_id,
         givens: puzzle.givens,
@@ -369,6 +387,7 @@ export default function App() {
 
       const daily = (await response.json()) as DailyChallengeResponseDto;
       const { puzzle, session } = daily;
+      solutionRef.current = puzzle.solution;
 
       if (session) {
         // Resume existing daily session
@@ -420,6 +439,7 @@ export default function App() {
       const res = await fetch(`/api/v1/puzzles/${tournament.puzzle_id}`);
       if (!res.ok) throw new Error("Could not load tournament puzzle");
       const puzzle = (await res.json()) as PuzzleResponseDto;
+      solutionRef.current = puzzle.solution;
 
       const state = createGameState({
         puzzleId: puzzle.puzzle_id,
@@ -463,7 +483,7 @@ export default function App() {
         session_id: sessionId,
         elapsed_ms: history.present.elapsedMs,
         mistakes: history.present.mistakes,
-        hints_used: 0,
+        hints_used: history.present.hintsUsed,
         final_board: board
       });
       setTournamentSubmitResult(result);
@@ -502,6 +522,19 @@ export default function App() {
         future: rest
       };
     });
+  }
+
+  function handleThemeChange(newThemeId: string) {
+    setThemeId(newThemeId);
+    void saveSetting("theme", newThemeId);
+  }
+
+  function handleHint() {
+    if (!history.present || history.present.selectedCell === null || !solutionRef.current) return;
+    const cellIndex = history.present.selectedCell;
+    const correctValue = Number(solutionRef.current[cellIndex]);
+    if (correctValue < 1 || correctValue > 9) return;
+    updateGame((state) => applyHint(state, cellIndex, correctValue));
   }
 
   async function toggleSetting(key: "highlightConflicts" | "highlightMatches", value: boolean) {
@@ -550,11 +583,15 @@ export default function App() {
         <span className="material-symbols-outlined">calendar_today</span>
         <span>Daily</span>
       </button>
-      <button className="nav-item" type="button">
+      <button
+        className={`nav-item ${view === "stats" ? "active" : ""}`}
+        onClick={() => setView("stats")}
+        type="button"
+      >
         <span className="material-symbols-outlined">leaderboard</span>
         <span>Stats</span>
       </button>
-      <button className="nav-item" type="button">
+      <button className="nav-item" onClick={() => setThemeModalOpen(true)} type="button">
         <span className="material-symbols-outlined">palette</span>
         <span>Themes</span>
       </button>
@@ -583,6 +620,15 @@ export default function App() {
           }}
         />
       )}
+      <ThemePickerModal
+        open={themeModalOpen}
+        onClose={() => setThemeModalOpen(false)}
+        currentTheme={themeId}
+        onSelectTheme={(id) => {
+          handleThemeChange(id);
+          setThemeModalOpen(false);
+        }}
+      />
     </>
   );
 
@@ -686,7 +732,7 @@ export default function App() {
                   </div>
                 </div>
                 <div className="stats-footer">
-                  <button className="link-btn" type="button">
+                  <button className="link-btn" type="button" onClick={() => setView("stats")}>
                     View detailed statistics
                     <span className="material-symbols-outlined" style={{ fontSize: "1.1rem" }}>
                       arrow_forward
@@ -768,6 +814,17 @@ export default function App() {
         tournament={leaderboardTournament}
         onBack={() => setView("home")}
       />
+    );
+  }
+
+  // Stats view
+  if (view === "stats") {
+    return (
+      <>
+        {authModals}
+        <StatsView onBack={() => setView("home")} />
+        {bottomNav}
+      </>
     );
   }
 
@@ -999,7 +1056,18 @@ export default function App() {
             </button>
             );
           })}
-          <button className="num-key hint-key" disabled type="button">
+          <button
+            className="num-key hint-key"
+            disabled={
+              !solutionRef.current ||
+              history.present.selectedCell === null ||
+              isGivenCell(history.present, history.present.selectedCell) ||
+              !!history.present.completedAt ||
+              history.present.gameOver
+            }
+            onClick={handleHint}
+            type="button"
+          >
             <span className="material-symbols-outlined">lightbulb</span>
           </button>
         </div>

@@ -7,7 +7,8 @@ export const puzzleResponseSchema = z.object({
   givens: z.string().regex(/^[0-9]{81}$/),
   difficulty: difficultySchema,
   generator_version: z.string(),
-  solution_checksum: z.string()
+  solution_checksum: z.string(),
+  solution: z.string().regex(/^[1-9]{81}$/)
 });
 
 export const sessionResponseSchema = z.object({

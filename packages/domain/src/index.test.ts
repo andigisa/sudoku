@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyHint,
   applyInput,
   clearCell,
   createGameState,
+  deserializeGameState,
   getConflictingCells,
   getPeerIndexes,
   isSolved,
   parseGrid,
+  serializeGameState,
   toggleNoteMode
 } from "./index.js";
 
@@ -60,5 +63,49 @@ describe("domain helpers", () => {
     );
 
     expect(isSolved(solved)).toBe(true);
+  });
+
+  it("applyHint sets correct value and increments hintsUsed", () => {
+    const game = createGameState(puzzle);
+    expect(game.board[2]).toBe(0);
+    expect(game.hintsUsed).toBe(0);
+
+    const hinted = applyHint(game, 2, 4);
+    expect(hinted.board[2]).toBe(4);
+    expect(hinted.hintsUsed).toBe(1);
+    expect(hinted.notes[2]).toEqual([]);
+  });
+
+  it("applyHint on a given cell returns state unchanged", () => {
+    const game = createGameState(puzzle);
+    const result = applyHint(game, 0, 5);
+    expect(result).toBe(game);
+  });
+
+  it("applyHint on a completed game returns state unchanged", () => {
+    const game = createGameState(puzzle);
+    const completed = { ...game, completedAt: new Date().toISOString() };
+    const result = applyHint(completed, 2, 4);
+    expect(result).toBe(completed);
+  });
+
+  it("applyHint clears notes on the hinted cell", () => {
+    const game = createGameState(puzzle);
+    const noteMode = toggleNoteMode(game);
+    const withNote = applyInput(noteMode, 2, 1);
+    expect(withNote.notes[2]).toEqual([1]);
+
+    const hinted = applyHint(withNote, 2, 4);
+    expect(hinted.board[2]).toBe(4);
+    expect(hinted.notes[2]).toEqual([]);
+  });
+
+  it("deserializeGameState defaults hintsUsed to 0 for old saved games", () => {
+    const game = createGameState(puzzle);
+    const serialized = serializeGameState(game);
+    const obj = JSON.parse(serialized);
+    delete obj.hintsUsed;
+    const restored = deserializeGameState(JSON.stringify(obj));
+    expect(restored.hintsUsed).toBe(0);
   });
 });
