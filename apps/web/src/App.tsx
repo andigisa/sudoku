@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { DifficultyDto, PuzzleResponseDto } from "@sudoku/contracts";
+import type { DifficultyDto, DailyChallengeResponseDto, PuzzleResponseDto, SessionResponseDto, TournamentResponseDto, SubmitEntryResponseDto } from "@sudoku/contracts";
+import TournamentCard from "./components/TournamentCard";
+import TournamentView from "./views/TournamentView";
+import LeaderboardView from "./views/LeaderboardView";
+import { fetchCurrentTournament, submitTournamentEntry } from "./api/tournaments";
 import {
   applyInput,
   clearCell,
@@ -27,7 +31,7 @@ import {
   type CompletedGameRecord
 } from "./storage";
 
-type ViewState = "home" | "game";
+type ViewState = "home" | "game" | "tournament" | "leaderboard";
 
 interface HistoryState {
   past: SerializedGameState[];
@@ -57,23 +61,37 @@ export default function App() {
   const [highlightConflicts, setHighlightConflicts] = useState(true);
   const [highlightMatches, setHighlightMatches] = useState(true);
   const [completedGames, setCompletedGames] = useState<CompletedGameRecord[]>([]);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [dailyStatus, setDailyStatus] = useState<"idle" | "done">("idle");
+  const [activeTournament, setActiveTournament] = useState<TournamentResponseDto | null>(null);
+  const [leaderboardTournament, setLeaderboardTournament] = useState<TournamentResponseDto | null>(null);
+  const [tournamentMode, setTournamentMode] = useState(false);
+  const [tournamentSubmitting, setTournamentSubmitting] = useState(false);
+  const [tournamentSubmitResult, setTournamentSubmitResult] = useState<SubmitEntryResponseDto | null>(null);
+  const [tournamentSubmitError, setTournamentSubmitError] = useState<string | null>(null);
   const completionLoggedRef = useRef<string | null>(null);
+  const serverSyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     void Promise.all([
       loadActiveGame(),
       loadSetting("highlightConflicts"),
       loadSetting("highlightMatches"),
+      loadSetting("sessionId"),
       listCompletedGames()
-    ]).then(([savedGame, savedConflictSetting, savedMatchSetting, completed]) => {
+    ]).then(([savedGame, savedConflictSetting, savedMatchSetting, savedSessionId, completed]) => {
       if (savedGame) {
         setHistory({ past: [], present: savedGame, future: [] });
       }
 
       setHighlightConflicts(savedConflictSetting !== "false");
       setHighlightMatches(savedMatchSetting !== "false");
+      setSessionId(savedSessionId ?? null);
       setCompletedGames(completed);
     });
+
+    // Load active tournament (best-effort, non-blocking)
+    fetchCurrentTournament().then(setActiveTournament).catch(() => null);
   }, []);
 
   useEffect(() => {
@@ -119,7 +137,29 @@ export default function App() {
         setCompletedGames(latest);
       });
     }
-  }, [history.present]);
+
+    // Debounced server sync
+    if (serverSyncTimerRef.current) {
+      clearTimeout(serverSyncTimerRef.current);
+    }
+
+    const snap = history.present;
+    const sid = sessionId;
+    if (sid) {
+      serverSyncTimerRef.current = setTimeout(() => {
+        void fetch(`/api/v1/sessions/${sid}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            state_json: JSON.stringify(snap),
+            elapsed_ms: snap.elapsedMs,
+            mistakes: snap.mistakes,
+            completed_at: snap.completedAt ?? null
+          })
+        }).catch(() => {/* server sync is best-effort */});
+      }, 2000);
+    }
+  }, [history.present, sessionId]);
 
   const conflicts = useMemo(
     () => (history.present ? new Set(getConflictingCells(history.present.board)) : new Set<number>()),
@@ -258,6 +298,27 @@ export default function App() {
     });
   }
 
+  async function createServerSession(puzzle: PuzzleResponseDto, state: SerializedGameState): Promise<string | null> {
+    try {
+      const response = await fetch("/api/v1/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          puzzle_id: puzzle.puzzle_id,
+          difficulty: puzzle.difficulty,
+          state_json: JSON.stringify(state)
+        })
+      });
+
+      if (!response.ok) return null;
+      const session = (await response.json()) as SessionResponseDto;
+      await saveSetting("sessionId", session.session_id);
+      return session.session_id;
+    } catch {
+      return null;
+    }
+  }
+
   async function startNewGame(selectedDifficulty: DifficultyDto) {
     setLoading(true);
 
@@ -276,7 +337,9 @@ export default function App() {
         solutionChecksum: puzzle.solution_checksum
       });
 
+      const sid = await createServerSession(puzzle, state);
       completionLoggedRef.current = null;
+      setSessionId(sid);
       setDifficulty(selectedDifficulty);
       setHistory({ past: [], present: state, future: [] });
       setView("game");
@@ -288,9 +351,117 @@ export default function App() {
     }
   }
 
+  async function startDailyChallenge() {
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/v1/daily");
+      if (!response.ok) throw new Error(`Server responded with ${response.status}`);
+
+      const daily = (await response.json()) as DailyChallengeResponseDto;
+      const { puzzle, session } = daily;
+
+      if (session) {
+        // Resume existing daily session
+        const savedState = JSON.parse(session.state_json) as SerializedGameState;
+        completionLoggedRef.current = savedState.completedAt;
+        setSessionId(session.session_id);
+        await saveSetting("sessionId", session.session_id);
+        setDifficulty(puzzle.difficulty);
+        setHistory({ past: [], present: savedState, future: [] });
+        if (savedState.completedAt) {
+          setDailyStatus("done");
+        }
+      } else {
+        // Start a fresh daily session
+        const state = createGameState({
+          puzzleId: puzzle.puzzle_id,
+          givens: puzzle.givens,
+          difficulty: puzzle.difficulty,
+          generatorVersion: puzzle.generator_version,
+          solutionChecksum: puzzle.solution_checksum
+        });
+
+        const sid = await createServerSession(puzzle, state);
+        completionLoggedRef.current = null;
+        setSessionId(sid);
+        setDailyStatus("idle");
+        setDifficulty(puzzle.difficulty);
+        setHistory({ past: [], present: state, future: [] });
+      }
+
+      setView("game");
+    } catch (error) {
+      console.error("Failed to start daily challenge:", error);
+      alert("Could not load the daily challenge. Please ensure the backend server is running.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function continueGame() {
     if (history.present) {
       setView("game");
+    }
+  }
+
+  async function startTournamentGame(tournament: TournamentResponseDto) {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/puzzles/${tournament.puzzle_id}`);
+      if (!res.ok) throw new Error("Could not load tournament puzzle");
+      const puzzle = (await res.json()) as PuzzleResponseDto;
+
+      const state = createGameState({
+        puzzleId: puzzle.puzzle_id,
+        givens: puzzle.givens,
+        difficulty: puzzle.difficulty,
+        generatorVersion: puzzle.generator_version,
+        solutionChecksum: puzzle.solution_checksum
+      });
+
+      const sid = await createServerSession(puzzle, state);
+      completionLoggedRef.current = null;
+      setSessionId(sid);
+      setTournamentMode(true);
+      setTournamentSubmitResult(null);
+      setTournamentSubmitError(null);
+      setDifficulty(puzzle.difficulty);
+      setHistory({ past: [], present: state, future: [] });
+      setView("game");
+    } catch (error) {
+      console.error("Failed to start tournament game:", error);
+      alert("Could not load the tournament puzzle.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function goToLeaderboard(tournament: TournamentResponseDto) {
+    setLeaderboardTournament(tournament);
+    setView("leaderboard");
+  }
+
+  async function handleTournamentSubmit() {
+    if (!history.present || !sessionId || !activeTournament) return;
+
+    setTournamentSubmitting(true);
+    setTournamentSubmitError(null);
+
+    try {
+      const board = history.present.board.join("");
+      const result = await submitTournamentEntry(activeTournament.id, {
+        session_id: sessionId,
+        elapsed_ms: history.present.elapsedMs,
+        mistakes: history.present.mistakes,
+        hints_used: 0,
+        final_board: board
+      });
+      setTournamentSubmitResult(result);
+    } catch (e) {
+      setTournamentSubmitError((e as Error).message);
+    } finally {
+      setTournamentSubmitting(false);
     }
   }
 
@@ -355,7 +526,7 @@ export default function App() {
         <span className="material-symbols-outlined">grid_on</span>
         <span>Play</span>
       </button>
-      <button className="nav-item" type="button">
+      <button className="nav-item" onClick={() => void startDailyChallenge()} type="button">
         <span className="material-symbols-outlined">calendar_today</span>
         <span>Daily</span>
       </button>
@@ -496,18 +667,61 @@ export default function App() {
                   <button
                     className="btn-pill"
                     disabled={loading}
-                    onClick={() => void startNewGame("hard")}
+                    onClick={() => void startDailyChallenge()}
                     type="button"
                   >
-                    Play Now
+                    {dailyStatus === "done" ? "View Result" : "Play Now"}
                   </button>
                 </div>
               </div>
+
+              <TournamentCard
+                tournament={activeTournament}
+                loading={loading}
+                onEnter={(id) => {
+                  if (activeTournament?.id === id) {
+                    if (activeTournament.status === "active") {
+                      void startTournamentGame(activeTournament);
+                    }
+                    setView("tournament");
+                  }
+                }}
+                onViewLeaderboard={() => {
+                  if (activeTournament) goToLeaderboard(activeTournament);
+                }}
+              />
             </div>
           </div>
         </main>
         {bottomNav}
       </>
+    );
+  }
+
+  // Tournament pre-play / result view (no game board yet)
+  if (view === "tournament" && activeTournament) {
+    return (
+      <TournamentView
+        tournament={activeTournament}
+        gameState={null}
+        submitting={false}
+        submitResult={tournamentSubmitResult}
+        submitError={null}
+        onStartGame={() => void startTournamentGame(activeTournament)}
+        onSubmitEntry={() => void handleTournamentSubmit()}
+        onViewLeaderboard={() => goToLeaderboard(activeTournament!)}
+        onBack={() => setView("home")}
+      />
+    );
+  }
+
+  // Leaderboard view
+  if (view === "leaderboard" && leaderboardTournament) {
+    return (
+      <LeaderboardView
+        tournament={leaderboardTournament}
+        onBack={() => setView("home")}
+      />
     );
   }
 
@@ -563,12 +777,40 @@ export default function App() {
         {history.present.gameOver ? (
           <div className="game-over-banner">
             Game Over — 3 mistakes reached
-            <button className="btn-pill" onClick={() => setView("home")} style={{ marginTop: 12 }} type="button">
+            <button className="btn-pill" onClick={() => { setTournamentMode(false); setView("home"); }} style={{ marginTop: 12 }} type="button">
               New Game
             </button>
           </div>
         ) : history.present.completedAt ? (
-          <div className="completed-banner">Puzzle Solved!</div>
+          <div className="completed-banner">
+            Puzzle Solved!
+            {tournamentMode && activeTournament && !tournamentSubmitResult && (
+              <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
+                {tournamentSubmitError && (
+                  <div style={{ color: "var(--error)", fontSize: "0.85rem" }}>{tournamentSubmitError}</div>
+                )}
+                <button
+                  className="btn-primary"
+                  disabled={tournamentSubmitting}
+                  onClick={() => void handleTournamentSubmit()}
+                  type="button"
+                >
+                  {tournamentSubmitting ? "Submitting…" : "Submit to Tournament"}
+                </button>
+              </div>
+            )}
+            {tournamentMode && tournamentSubmitResult && (
+              <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
+                <span style={{ fontWeight: 700, fontSize: "1.1rem" }}>
+                  Rank #{tournamentSubmitResult.rank} · {tournamentSubmitResult.score} pts
+                </span>
+                <button className="btn-primary" onClick={() => activeTournament && goToLeaderboard(activeTournament)} type="button">
+                  <span className="material-symbols-outlined">leaderboard</span>
+                  View Leaderboard
+                </button>
+              </div>
+            )}
+          </div>
         ) : null}
 
         {/* Board */}

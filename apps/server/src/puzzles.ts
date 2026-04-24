@@ -72,8 +72,14 @@ const expert = [
 
 const puzzlePack: PuzzlePack = { easy, medium, hard, expert };
 
+const allPuzzles = [...easy, ...medium, ...hard, ...expert];
+
 export function getRandomPuzzle(difficulty: DifficultyDto): PuzzleResponseDto {
   const puzzles = puzzlePack[difficulty];
   const index = Math.floor(Math.random() * puzzles.length);
   return puzzles[index];
+}
+
+export function getPuzzleById(puzzleId: string): PuzzleResponseDto | undefined {
+  return allPuzzles.find((p) => p.puzzle_id === puzzleId);
 }
