@@ -24,6 +24,7 @@ export async function sessionRoutes(app: FastifyInstance) {
       .values({
         sessionId,
         guestId: request.guestId,
+        userId: request.userId ?? null,
         puzzleId: puzzle_id,
         difficulty,
         stateJson: state_json,

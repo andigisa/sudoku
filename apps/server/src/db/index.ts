@@ -92,6 +92,61 @@ sqlite.exec(`
   CREATE INDEX IF NOT EXISTS idx_tournament_entry_tournament_guest ON tournament_entry(tournament_id, guest_id);
   CREATE INDEX IF NOT EXISTS idx_tournament_entry_score ON tournament_entry(tournament_id, raw_score);
   CREATE INDEX IF NOT EXISTS idx_leaderboard_snapshot_tournament ON leaderboard_snapshot(tournament_id, score);
+
+  -- Auth tables
+  CREATE TABLE IF NOT EXISTS user (
+    id TEXT PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    display_name TEXT,
+    guest_id TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS password_credential (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    hash TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS user_session (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    revoked_at TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS sync_state (
+    user_id TEXT PRIMARY KEY,
+    settings_json TEXT NOT NULL DEFAULT '{}',
+    version INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_user_email ON user(email);
+  CREATE INDEX IF NOT EXISTS idx_user_guest_id ON user(guest_id);
+  CREATE INDEX IF NOT EXISTS idx_password_credential_user_id ON password_credential(user_id);
+  CREATE INDEX IF NOT EXISTS idx_user_session_user_id ON user_session(user_id);
+  CREATE INDEX IF NOT EXISTS idx_user_session_expires_at ON user_session(expires_at);
 `);
 
-export const db = drizzle(sqlite as Parameters<typeof drizzle>[0], { schema });
+// Migrations: add user_id column to existing tables (SQLite has no ALTER ADD COLUMN IF NOT EXISTS)
+const migrationTables = ["game_sessions", "tournament_entry", "leaderboard_snapshot", "abuse_flag"];
+for (const table of migrationTables) {
+  const columns = sqlite.pragma(`table_info(${table})`) as { name: string }[];
+  if (!columns.some((c) => c.name === "user_id")) {
+    sqlite.exec(`ALTER TABLE ${table} ADD COLUMN user_id TEXT;`);
+  }
+}
+
+sqlite.exec(`
+  CREATE INDEX IF NOT EXISTS idx_game_sessions_user_id ON game_sessions(user_id);
+  CREATE INDEX IF NOT EXISTS idx_tournament_entry_user_id ON tournament_entry(user_id);
+  CREATE INDEX IF NOT EXISTS idx_leaderboard_snapshot_user_id ON leaderboard_snapshot(user_id);
+`);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const db = drizzle(sqlite as any, { schema });

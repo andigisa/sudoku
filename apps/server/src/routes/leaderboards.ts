@@ -1,7 +1,8 @@
 import type { FastifyInstance } from "fastify";
 import { eq, and } from "drizzle-orm";
+import { inArray } from "drizzle-orm";
 import { db } from "../db/index.js";
-import { tournaments, tournamentEntries, leaderboardSnapshots } from "../db/schema.js";
+import { tournaments, tournamentEntries, leaderboardSnapshots, users } from "../db/schema.js";
 import { leaderboardResponseSchema } from "@sudoku/contracts";
 import { buildLeaderboard } from "../services/leaderboard.js";
 
@@ -41,7 +42,23 @@ export async function leaderboardRoutes(app: FastifyInstance) {
       })
       .filter((e): e is NonNullable<typeof e> => e !== null);
 
-    const ranked = buildLeaderboard(entries);
+    // Look up display names for users who set one
+    const guestIds = [...new Set(entries.map((e) => e.guestId))];
+    const displayNameOverrides = new Map<string, string>();
+    if (guestIds.length > 0) {
+      const userRows = db
+        .select({ guestId: users.guestId, displayName: users.displayName })
+        .from(users)
+        .where(inArray(users.guestId, guestIds))
+        .all();
+      for (const row of userRows) {
+        if (row.guestId && row.displayName) {
+          displayNameOverrides.set(row.guestId, row.displayName);
+        }
+      }
+    }
+
+    const ranked = buildLeaderboard(entries, displayNameOverrides);
 
     app.log.info({ tournamentId: request.params.id, total: ranked.length }, "leaderboard requested");
 

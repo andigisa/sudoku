@@ -8,6 +8,7 @@ export const guests = sqliteTable("guests", {
 export const gameSessions = sqliteTable("game_sessions", {
   sessionId: text("session_id").primaryKey(),
   guestId: text("guest_id").notNull(),
+  userId: text("user_id"),
   puzzleId: text("puzzle_id").notNull(),
   difficulty: text("difficulty").notNull(),
   stateJson: text("state_json").notNull(),
@@ -38,6 +39,7 @@ export const tournamentEntries = sqliteTable("tournament_entry", {
   id: text("id").primaryKey(),
   tournamentId: text("tournament_id").notNull(),
   guestId: text("guest_id").notNull(),
+  userId: text("user_id"),
   sessionId: text("session_id").notNull(),
   elapsedMs: integer("elapsed_ms").notNull(),
   mistakes: integer("mistakes").notNull(),
@@ -54,6 +56,7 @@ export const leaderboardSnapshots = sqliteTable(
     id: text("id").primaryKey(),
     tournamentId: text("tournament_id").notNull(),
     guestId: text("guest_id").notNull(),
+    userId: text("user_id"),
     entryId: text("entry_id").notNull(),
     rank: integer("rank").notNull(),
     score: integer("score").notNull(),
@@ -66,6 +69,41 @@ export const abuseFlags = sqliteTable("abuse_flag", {
   id: text("id").primaryKey(),
   tournamentId: text("tournament_id").notNull(),
   guestId: text("guest_id").notNull(),
+  userId: text("user_id"),
   reason: text("reason").notNull(),
   createdAt: text("created_at").notNull()
+});
+
+// ── Auth tables ──────────────────────────────────────────────────────────────
+
+export const users = sqliteTable("user", {
+  id: text("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  displayName: text("display_name"),
+  guestId: text("guest_id"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull()
+});
+
+export const passwordCredentials = sqliteTable("password_credential", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  hash: text("hash").notNull(),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull()
+});
+
+export const userSessions = sqliteTable("user_session", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  createdAt: text("created_at").notNull(),
+  expiresAt: text("expires_at").notNull(),
+  revokedAt: text("revoked_at")
+});
+
+export const syncStates = sqliteTable("sync_state", {
+  userId: text("user_id").primaryKey(),
+  settingsJson: text("settings_json").notNull().default("{}"),
+  version: integer("version").notNull().default(0),
+  updatedAt: text("updated_at").notNull()
 });

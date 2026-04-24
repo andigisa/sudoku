@@ -20,10 +20,16 @@ export interface CompletedGameRecord {
   completedAt: string;
 }
 
+export interface SyncMetaRecord {
+  key: string;
+  value: string;
+}
+
 class SudokuDatabase extends Dexie {
   activeGame!: Table<ActiveGameRecord, string>;
   settings!: Table<SettingRecord, string>;
   completedGames!: Table<CompletedGameRecord, number>;
+  syncMeta!: Table<SyncMetaRecord, string>;
 
   constructor() {
     super("sudoku-platform");
@@ -31,6 +37,12 @@ class SudokuDatabase extends Dexie {
       activeGame: "id, updatedAt",
       settings: "key",
       completedGames: "++id, puzzleId, completedAt"
+    });
+    this.version(2).stores({
+      activeGame: "id, updatedAt",
+      settings: "key",
+      completedGames: "++id, puzzleId, completedAt",
+      syncMeta: "key"
     });
   }
 }
@@ -69,4 +81,13 @@ export async function appendCompletedGame(record: CompletedGameRecord): Promise<
 
 export async function listCompletedGames(limit = 8): Promise<CompletedGameRecord[]> {
   return db.completedGames.orderBy("completedAt").reverse().limit(limit).toArray();
+}
+
+export async function saveSyncVersion(version: number): Promise<void> {
+  await db.syncMeta.put({ key: "syncVersion", value: String(version) });
+}
+
+export async function loadSyncVersion(): Promise<number> {
+  const record = await db.syncMeta.get("syncVersion");
+  return record ? Number(record.value) : 0;
 }

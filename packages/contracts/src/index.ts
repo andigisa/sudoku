@@ -101,6 +101,65 @@ export const leaderboardResponseSchema = z.object({
   entries: z.array(leaderboardEntrySchema)
 });
 
+// ── Auth ─────────────────────────────────────────────────────────────────────
+
+export const registerRequestSchema = z.object({
+  email: z.string().email().transform((e) => e.toLowerCase().trim()),
+  password: z.string().min(8).max(128),
+  display_name: z.string().min(1).max(30).optional()
+});
+
+export const loginRequestSchema = z.object({
+  email: z.string().email().transform((e) => e.toLowerCase().trim()),
+  password: z.string().min(1)
+});
+
+export const userProfileSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  display_name: z.string().nullable(),
+  created_at: z.string()
+});
+
+export const authResponseSchema = z.object({
+  user: userProfileSchema
+});
+
+export const updateProfileRequestSchema = z.object({
+  display_name: z.string().min(1).max(30).nullable().optional()
+});
+
+export const passwordResetRequestSchema = z.object({
+  email: z.string().email().transform((e) => e.toLowerCase().trim())
+});
+
+// ── Sync ─────────────────────────────────────────────────────────────────────
+
+export const syncBootstrapResponseSchema = z.object({
+  user: userProfileSchema,
+  settings: z.record(z.string(), z.string()),
+  recent_sessions: z.array(sessionResponseSchema),
+  in_progress_games: z.array(sessionResponseSchema),
+  sync_version: z.number()
+});
+
+export const syncPushItemSchema = z.object({
+  type: z.enum(["session_update", "setting_change"]),
+  payload: z.record(z.string(), z.unknown()),
+  timestamp: z.string()
+});
+
+export const syncPushRequestSchema = z.object({
+  last_known_version: z.number(),
+  changes: z.array(syncPushItemSchema)
+});
+
+export const syncPushResultSchema = z.object({
+  accepted: z.array(z.object({ index: z.number(), status: z.literal("accepted") })),
+  rejected: z.array(z.object({ index: z.number(), status: z.literal("rejected"), reason: z.string() })),
+  new_version: z.number()
+});
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export type DifficultyDto = z.infer<typeof difficultySchema>;
@@ -117,3 +176,13 @@ export type SubmitEntryRequestDto = z.infer<typeof submitEntryRequestSchema>;
 export type SubmitEntryResponseDto = z.infer<typeof submitEntryResponseSchema>;
 export type LeaderboardEntryDto = z.infer<typeof leaderboardEntrySchema>;
 export type LeaderboardResponseDto = z.infer<typeof leaderboardResponseSchema>;
+export type RegisterRequestDto = z.infer<typeof registerRequestSchema>;
+export type LoginRequestDto = z.infer<typeof loginRequestSchema>;
+export type UserProfileDto = z.infer<typeof userProfileSchema>;
+export type AuthResponseDto = z.infer<typeof authResponseSchema>;
+export type UpdateProfileRequestDto = z.infer<typeof updateProfileRequestSchema>;
+export type PasswordResetRequestDto = z.infer<typeof passwordResetRequestSchema>;
+export type SyncBootstrapResponseDto = z.infer<typeof syncBootstrapResponseSchema>;
+export type SyncPushItemDto = z.infer<typeof syncPushItemSchema>;
+export type SyncPushRequestDto = z.infer<typeof syncPushRequestSchema>;
+export type SyncPushResultDto = z.infer<typeof syncPushResultSchema>;

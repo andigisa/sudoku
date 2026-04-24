@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { DifficultyDto, DailyChallengeResponseDto, PuzzleResponseDto, SessionResponseDto, TournamentResponseDto, SubmitEntryResponseDto } from "@sudoku/contracts";
+import type { DifficultyDto, DailyChallengeResponseDto, PuzzleResponseDto, SessionResponseDto, TournamentResponseDto, SubmitEntryResponseDto, UserProfileDto } from "@sudoku/contracts";
 import TournamentCard from "./components/TournamentCard";
 import TournamentView from "./views/TournamentView";
 import LeaderboardView from "./views/LeaderboardView";
+import AuthModal from "./components/AuthModal";
+import AccountSettings from "./components/AccountSettings";
 import { fetchCurrentTournament, submitTournamentEntry } from "./api/tournaments";
+import { fetchMe } from "./api/auth";
 import {
   applyInput,
   clearCell,
@@ -69,6 +72,9 @@ export default function App() {
   const [tournamentSubmitting, setTournamentSubmitting] = useState(false);
   const [tournamentSubmitResult, setTournamentSubmitResult] = useState<SubmitEntryResponseDto | null>(null);
   const [tournamentSubmitError, setTournamentSubmitError] = useState<string | null>(null);
+  const [user, setUser] = useState<UserProfileDto | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
   const completionLoggedRef = useRef<string | null>(null);
   const serverSyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -92,6 +98,9 @@ export default function App() {
 
     // Load active tournament (best-effort, non-blocking)
     fetchCurrentTournament().then(setActiveTournament).catch(() => null);
+
+    // Check for existing auth session
+    fetchMe().then((res) => { if (res) setUser(res.user); }).catch(() => null);
   }, []);
 
   useEffect(() => {
@@ -509,8 +518,19 @@ export default function App() {
     <header className="app-header">
       <div className="app-header-inner">
         <span className="app-title">Sudoku Lithograph</span>
-        <button className="header-settings-btn" type="button" aria-label="Settings">
-          <span className="material-symbols-outlined">settings</span>
+        <button
+          className="header-settings-btn"
+          type="button"
+          aria-label={user ? "Account" : "Sign in"}
+          onClick={() => {
+            if (user) {
+              setAccountSettingsOpen(true);
+            } else {
+              setAuthModalOpen(true);
+            }
+          }}
+        >
+          <span className="material-symbols-outlined">{user ? "account_circle" : "person"}</span>
         </button>
       </div>
     </header>
@@ -541,11 +561,37 @@ export default function App() {
     </nav>
   );
 
+  const authModals = (
+    <>
+      <AuthModal
+        open={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onAuthSuccess={(u) => {
+          setUser(u);
+          setAuthModalOpen(false);
+        }}
+      />
+      {user && (
+        <AccountSettings
+          open={accountSettingsOpen}
+          onClose={() => setAccountSettingsOpen(false)}
+          user={user}
+          onProfileUpdate={(u) => setUser(u)}
+          onLogout={() => {
+            setUser(null);
+            setAccountSettingsOpen(false);
+          }}
+        />
+      )}
+    </>
+  );
+
   if (view === "home") {
     const todayLabel = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric" });
 
     return (
       <>
+        {authModals}
         {appHeader}
         <main className="home-shell">
           <div className="home-grid">
@@ -732,6 +778,7 @@ export default function App() {
 
   return (
     <>
+      {authModals}
       {appHeader}
       <main className="game-shell">
         {/* Game info bar */}
@@ -807,6 +854,15 @@ export default function App() {
                 <button className="btn-primary" onClick={() => activeTournament && goToLeaderboard(activeTournament)} type="button">
                   <span className="material-symbols-outlined">leaderboard</span>
                   View Leaderboard
+                </button>
+              </div>
+            )}
+            {!user && (
+              <div className="guest-upgrade-prompt">
+                <span className="material-symbols-outlined" style={{ fontSize: "1rem" }}>cloud_upload</span>
+                Save progress across devices.{" "}
+                <button className="auth-link" type="button" onClick={() => setAuthModalOpen(true)}>
+                  Create an account
                 </button>
               </div>
             )}

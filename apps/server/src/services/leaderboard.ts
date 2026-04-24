@@ -18,7 +18,10 @@ export interface RankedEntry extends LeaderboardInputEntry {
  * Caller is responsible for passing only the best valid entry per guest —
  * passing all entries will produce incorrect rankings.
  */
-export function buildLeaderboard(entries: LeaderboardInputEntry[]): RankedEntry[] {
+export function buildLeaderboard(
+  entries: LeaderboardInputEntry[],
+  displayNameOverrides?: Map<string, string>
+): RankedEntry[] {
   const sorted = [...entries].sort((a, b) => {
     // 1. Higher score wins
     if (b.score !== a.score) return b.score - a.score;
@@ -31,7 +34,7 @@ export function buildLeaderboard(entries: LeaderboardInputEntry[]): RankedEntry[
   return sorted.map((entry, index) => ({
     ...entry,
     rank: index + 1,
-    displayName: deriveDisplayName(entry.guestId)
+    displayName: displayNameOverrides?.get(entry.guestId) ?? deriveDisplayName(entry.guestId)
   }));
 }
 
