@@ -6,6 +6,7 @@ import fastifyCookie from "@fastify/cookie";
 import { difficultySchema, puzzleResponseSchema } from "@sudoku/contracts";
 import { getRandomPuzzle, getPuzzleById } from "./puzzles.js";
 import { env } from "./env.js";
+import { persist } from "./db/index.js";
 import guestIdentityPlugin from "./plugins/guestIdentity.js";
 import csrfPlugin from "./plugins/csrf.js";
 import rateLimiterPlugin from "./plugins/rateLimiter.js";
@@ -24,6 +25,12 @@ const webDistDir = path.resolve(rootDir, "apps/web/dist");
 
 const app = Fastify({
   logger: { level: env.LOG_LEVEL }
+});
+
+// Persist sql.js database to disk after mutating requests
+const MUTATING = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+app.addHook("onResponse", async (request) => {
+  if (MUTATING.has(request.method)) persist();
 });
 
 // Plugins

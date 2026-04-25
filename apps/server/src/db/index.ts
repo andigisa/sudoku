@@ -1,24 +1,32 @@
-import { createRequire } from "node:module";
-import { drizzle } from "drizzle-orm/better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
+import initSqlJs from "sql.js";
+import { drizzle } from "drizzle-orm/sql-js";
 import { env } from "../env.js";
 import * as schema from "./schema.js";
 
-const require = createRequire(import.meta.url);
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const Database = require("better-sqlite3") as typeof import("better-sqlite3");
-
-const dbDir = path.dirname(path.resolve(env.DB_PATH));
+const dbPath = path.resolve(env.DB_PATH);
+const dbDir = path.dirname(dbPath);
 if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
 }
 
-const sqlite = new Database(env.DB_PATH) as InstanceType<typeof import("better-sqlite3")>;
-sqlite.pragma("journal_mode = WAL");
-sqlite.pragma("foreign_keys = ON");
+const SQL = await initSqlJs();
 
-sqlite.exec(`
+// Load existing DB file if present, otherwise create empty
+const sqlite = fs.existsSync(dbPath)
+  ? new SQL.Database(fs.readFileSync(dbPath))
+  : new SQL.Database();
+
+// sql.js is in-memory — persist to disk after writes
+function persist(): void {
+  const data = sqlite.export();
+  fs.writeFileSync(dbPath, Buffer.from(data));
+}
+
+sqlite.run("PRAGMA foreign_keys = ON");
+
+sqlite.run(`
   CREATE TABLE IF NOT EXISTS guests (
     guest_id TEXT PRIMARY KEY,
     created_at TEXT NOT NULL
@@ -133,20 +141,25 @@ sqlite.exec(`
   CREATE INDEX IF NOT EXISTS idx_user_session_expires_at ON user_session(expires_at);
 `);
 
-// Migrations: add user_id column to existing tables (SQLite has no ALTER ADD COLUMN IF NOT EXISTS)
+// Migrations: add user_id column to existing tables
 const migrationTables = ["game_sessions", "tournament_entry", "leaderboard_snapshot", "abuse_flag"];
 for (const table of migrationTables) {
-  const columns = sqlite.pragma(`table_info(${table})`) as { name: string }[];
-  if (!columns.some((c) => c.name === "user_id")) {
-    sqlite.exec(`ALTER TABLE ${table} ADD COLUMN user_id TEXT;`);
+  const columns = sqlite.exec(`PRAGMA table_info(${table})`);
+  const names = columns.length > 0 ? columns[0].values.map((row) => row[1] as string) : [];
+  if (!names.includes("user_id")) {
+    sqlite.run(`ALTER TABLE ${table} ADD COLUMN user_id TEXT`);
   }
 }
 
-sqlite.exec(`
+sqlite.run(`
   CREATE INDEX IF NOT EXISTS idx_game_sessions_user_id ON game_sessions(user_id);
   CREATE INDEX IF NOT EXISTS idx_tournament_entry_user_id ON tournament_entry(user_id);
   CREATE INDEX IF NOT EXISTS idx_leaderboard_snapshot_user_id ON leaderboard_snapshot(user_id);
 `);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const db = drizzle(sqlite as any, { schema });
+persist();
+
+export const db = drizzle(sqlite, { schema });
+
+// Persist after every request that may have written data
+export { persist };
