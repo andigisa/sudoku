@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { eq, and } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { dailyChallenges, gameSessions } from "../db/schema.js";
-import { getRandomPuzzle, getPuzzleById } from "../puzzles.js";
+import { getRandomPuzzle, getPuzzleById, toPublicPuzzle } from "../puzzles.js";
 import { dailyChallengeResponseSchema } from "@sudoku/contracts";
 
 const DAILY_DIFFICULTY = "medium" as const;
@@ -46,7 +46,7 @@ export async function dailyRoutes(app: FastifyInstance) {
 
     return dailyChallengeResponseSchema.parse({
       date: today,
-      puzzle,
+      puzzle: toPublicPuzzle(puzzle),
       session: existingSession
         ? {
             session_id: existingSession.sessionId,

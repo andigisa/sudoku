@@ -7,8 +7,16 @@ export const puzzleResponseSchema = z.object({
   givens: z.string().regex(/^[0-9]{81}$/),
   difficulty: difficultySchema,
   generator_version: z.string(),
-  solution_checksum: z.string(),
-  solution: z.string().regex(/^[1-9]{81}$/)
+  solution_checksum: z.string()
+});
+
+export const hintRequestSchema = z.object({
+  cell_index: z.number().int().min(0).max(80)
+});
+
+export const hintResponseSchema = z.object({
+  cell_index: z.number(),
+  value: z.number().int().min(1).max(9)
 });
 
 export const sessionResponseSchema = z.object({
@@ -165,6 +173,8 @@ export const syncPushResultSchema = z.object({
 
 export type DifficultyDto = z.infer<typeof difficultySchema>;
 export type PuzzleResponseDto = z.infer<typeof puzzleResponseSchema>;
+export type HintRequestDto = z.infer<typeof hintRequestSchema>;
+export type HintResponseDto = z.infer<typeof hintResponseSchema>;
 export type SessionResponseDto = z.infer<typeof sessionResponseSchema>;
 export type CreateSessionRequestDto = z.infer<typeof createSessionRequestSchema>;
 export type UpdateSessionRequestDto = z.infer<typeof updateSessionRequestSchema>;

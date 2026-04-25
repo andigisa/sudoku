@@ -3,8 +3,8 @@ import { fileURLToPath } from "node:url";
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import fastifyCookie from "@fastify/cookie";
-import { difficultySchema, puzzleResponseSchema } from "@sudoku/contracts";
-import { getRandomPuzzle, getPuzzleById } from "./puzzles.js";
+import { difficultySchema, hintRequestSchema } from "@sudoku/contracts";
+import { getRandomPuzzle, getPuzzleById, toPublicPuzzle } from "./puzzles.js";
 import { env } from "./env.js";
 import { initDatabase, persist } from "./db/index.js";
 import guestIdentityPlugin from "./plugins/guestIdentity.js";
@@ -27,7 +27,8 @@ async function main() {
   const webDistDir = path.resolve(rootDir, "apps/web/dist");
 
   const app = Fastify({
-    logger: { level: env.LOG_LEVEL }
+    logger: { level: env.LOG_LEVEL },
+    trustProxy: true
   });
 
   // Persist sql.js database to disk after mutating requests
@@ -55,14 +56,26 @@ async function main() {
     }
 
     const puzzle = getRandomPuzzle(parsed.data);
-    return puzzleResponseSchema.parse(puzzle);
+    return toPublicPuzzle(puzzle);
   });
 
   app.get("/api/v1/puzzles/:id", async (request, reply) => {
     const { id } = request.params as { id: string };
     const puzzle = getPuzzleById(id);
     if (!puzzle) return reply.status(404).send({ message: "Puzzle not found" });
-    return puzzleResponseSchema.parse(puzzle);
+    return toPublicPuzzle(puzzle);
+  });
+
+  app.post("/api/v1/puzzles/:id/hint", async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const puzzle = getPuzzleById(id);
+    if (!puzzle) return reply.status(404).send({ message: "Puzzle not found" });
+
+    const parsed = hintRequestSchema.safeParse(request.body);
+    if (!parsed.success) return reply.status(400).send({ message: "Invalid request" });
+
+    const value = Number(puzzle.solution[parsed.data.cell_index]);
+    return { cell_index: parsed.data.cell_index, value };
   });
 
   await app.register(sessionRoutes);

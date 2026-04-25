@@ -1,8 +1,12 @@
 import type { DifficultyDto, PuzzleResponseDto } from "@sudoku/contracts";
 
-type PuzzlePack = Record<DifficultyDto, PuzzleResponseDto[]>;
+export interface PuzzleWithSolution extends PuzzleResponseDto {
+  solution: string;
+}
 
-const easy = [
+type PuzzlePack = Record<DifficultyDto, PuzzleWithSolution[]>;
+
+const easy: PuzzleWithSolution[] = [
   {
     puzzle_id: "easy-001",
     givens: "000260701680070090190004500820100040004602900050003028009300074040050036703018000",
@@ -19,9 +23,9 @@ const easy = [
     solution_checksum: "sha256:easy-002",
     solution: "421356897593187264867294315349718652715462938286539471674925183158643729932871546"
   }
-] satisfies PuzzleResponseDto[];
+];
 
-const medium = [
+const medium: PuzzleWithSolution[] = [
   {
     puzzle_id: "medium-001",
     givens: "530070000600195000098000060800060003400803001700020006060000280000419005000080079",
@@ -38,9 +42,9 @@ const medium = [
     solution_checksum: "sha256:medium-002",
     solution: "245981376169273584837564219976125438513498627482736951391657842728349165654812793"
   }
-] satisfies PuzzleResponseDto[];
+];
 
-const hard = [
+const hard: PuzzleWithSolution[] = [
   {
     puzzle_id: "hard-001",
     givens: "000000907000420180000705026100904000050000040000507009920108000034059000507000000",
@@ -57,9 +61,9 @@ const hard = [
     solution_checksum: "sha256:hard-002",
     solution: "814976532659123478732854169948265317275341896163798245391682754587439621426517983"
   }
-] satisfies PuzzleResponseDto[];
+];
 
-const expert = [
+const expert: PuzzleWithSolution[] = [
   {
     puzzle_id: "expert-001",
     givens: "300200000000107000706030500070009080900020004010800050009040301000702000000008006",
@@ -76,18 +80,24 @@ const expert = [
     solution_checksum: "sha256:expert-002",
     solution: "145327698839654127672918543496185372218473956753296481367542819984761235521839764"
   }
-] satisfies PuzzleResponseDto[];
+];
 
 const puzzlePack: PuzzlePack = { easy, medium, hard, expert };
 
 const allPuzzles = [...easy, ...medium, ...hard, ...expert];
 
-export function getRandomPuzzle(difficulty: DifficultyDto): PuzzleResponseDto {
+export function getRandomPuzzle(difficulty: DifficultyDto): PuzzleWithSolution {
   const puzzles = puzzlePack[difficulty];
   const index = Math.floor(Math.random() * puzzles.length);
   return puzzles[index];
 }
 
-export function getPuzzleById(puzzleId: string): PuzzleResponseDto | undefined {
+export function getPuzzleById(puzzleId: string): PuzzleWithSolution | undefined {
   return allPuzzles.find((p) => p.puzzle_id === puzzleId);
+}
+
+/** Return only the public fields (no solution) */
+export function toPublicPuzzle(puzzle: PuzzleWithSolution): PuzzleResponseDto {
+  const { solution: _, ...pub } = puzzle;
+  return pub;
 }

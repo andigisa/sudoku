@@ -81,7 +81,8 @@ export default function App() {
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
   const [themeId, setThemeId] = useState("default");
   const [themeModalOpen, setThemeModalOpen] = useState(false);
-  const solutionRef = useRef<string | null>(null);
+  const puzzleIdRef = useRef<string | null>(null);
+  const solutionCacheRef = useRef<Record<string, number[]>>({});
   const completionLoggedRef = useRef<string | null>(null);
   const serverSyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -251,8 +252,7 @@ export default function App() {
 
       if (event.key >= "1" && event.key <= "9") {
         event.preventDefault();
-        const sol = solutionRef.current ? Array.from(solutionRef.current, Number) : undefined;
-        updateGame((state) => applyInput(state, state.selectedCell!, Number(event.key), sol));
+        void handleDigitInput(history.present.selectedCell!, Number(event.key));
       } else if (event.key === "Backspace" || event.key === "Delete" || event.key === "0") {
         event.preventDefault();
         updateGame((state) => clearCell(state, state.selectedCell!));
@@ -356,7 +356,7 @@ export default function App() {
       }
 
       const puzzle = (await response.json()) as PuzzleResponseDto;
-      solutionRef.current = puzzle.solution;
+      puzzleIdRef.current = puzzle.puzzle_id;
       const state = createGameState({
         puzzleId: puzzle.puzzle_id,
         givens: puzzle.givens,
@@ -388,7 +388,7 @@ export default function App() {
 
       const daily = (await response.json()) as DailyChallengeResponseDto;
       const { puzzle, session } = daily;
-      solutionRef.current = puzzle.solution;
+      puzzleIdRef.current = puzzle.puzzle_id;
 
       if (session) {
         // Resume existing daily session
@@ -440,7 +440,7 @@ export default function App() {
       const res = await fetch(`/api/v1/puzzles/${tournament.puzzle_id}`);
       if (!res.ok) throw new Error("Could not load tournament puzzle");
       const puzzle = (await res.json()) as PuzzleResponseDto;
-      solutionRef.current = puzzle.solution;
+      puzzleIdRef.current = puzzle.puzzle_id;
 
       const state = createGameState({
         puzzleId: puzzle.puzzle_id,
@@ -525,17 +525,70 @@ export default function App() {
     });
   }
 
+  async function fetchCellSolution(puzzleId: string, cellIndex: number): Promise<number | undefined> {
+    const cache = solutionCacheRef.current[puzzleId];
+    if (cache && cache[cellIndex]) return cache[cellIndex];
+    try {
+      const res = await fetch(`/api/v1/puzzles/${puzzleId}/hint`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cell_index: cellIndex })
+      });
+      if (!res.ok) return undefined;
+      const data = (await res.json()) as { value: number };
+      if (!solutionCacheRef.current[puzzleId]) {
+        solutionCacheRef.current[puzzleId] = new Array(81).fill(0);
+      }
+      solutionCacheRef.current[puzzleId][cellIndex] = data.value;
+      return data.value;
+    } catch {
+      return undefined;
+    }
+  }
+
+  async function handleDigitInput(cellIndex: number, digit: number) {
+    if (!puzzleIdRef.current) {
+      updateGame((state) => applyInput(state, cellIndex, digit));
+      return;
+    }
+    const correct = await fetchCellSolution(puzzleIdRef.current, cellIndex);
+    const sol = correct !== undefined ? (() => {
+      const arr = new Array(81).fill(0);
+      arr[cellIndex] = correct;
+      return arr;
+    })() : undefined;
+    updateGame((state) => applyInput(state, state.selectedCell!, digit, sol));
+  }
+
   function handleThemeChange(newThemeId: string) {
     setThemeId(newThemeId);
     void saveSetting("theme", newThemeId);
   }
 
-  function handleHint() {
-    if (!history.present || history.present.selectedCell === null || !solutionRef.current) return;
+  async function handleHint() {
+    if (!history.present || history.present.selectedCell === null || !puzzleIdRef.current) return;
     const cellIndex = history.present.selectedCell;
-    const correctValue = Number(solutionRef.current[cellIndex]);
-    if (correctValue < 1 || correctValue > 9) return;
-    updateGame((state) => applyHint(state, cellIndex, correctValue));
+    const puzzleId = puzzleIdRef.current;
+
+    try {
+      const res = await fetch(`/api/v1/puzzles/${puzzleId}/hint`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cell_index: cellIndex })
+      });
+      if (!res.ok) return;
+      const data = (await res.json()) as { value: number };
+
+      // Cache the value for mistake checking
+      if (!solutionCacheRef.current[puzzleId]) {
+        solutionCacheRef.current[puzzleId] = new Array(81).fill(0);
+      }
+      solutionCacheRef.current[puzzleId][cellIndex] = data.value;
+
+      updateGame((state) => applyHint(state, cellIndex, data.value));
+    } catch {
+      // silently fail — hint is optional
+    }
   }
 
   async function toggleSetting(key: "highlightConflicts" | "highlightMatches", value: boolean) {
@@ -1049,10 +1102,7 @@ export default function App() {
               onClick={() =>
                 history.present &&
                 history.present.selectedCell !== null &&
-                updateGame((state) => {
-                  const sol = solutionRef.current ? Array.from(solutionRef.current, Number) : undefined;
-                  return applyInput(state, state.selectedCell!, digit, sol);
-                })
+                void handleDigitInput(history.present.selectedCell!, digit)
               }
               type="button"
             >
@@ -1063,7 +1113,7 @@ export default function App() {
           <button
             className="num-key hint-key"
             disabled={
-              !solutionRef.current ||
+              !puzzleIdRef.current ||
               history.present.selectedCell === null ||
               isGivenCell(history.present, history.present.selectedCell) ||
               !!history.present.completedAt ||

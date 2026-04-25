@@ -12,3 +12,12 @@ export const env = {
   ARGON2_MEMORY_COST: Number(process.env.ARGON2_MEMORY_COST ?? 65536),
   ARGON2_TIME_COST: Number(process.env.ARGON2_TIME_COST ?? 3)
 } as const;
+
+if (env.NODE_ENV === "production") {
+  if (env.COOKIE_SECRET === "dev-secret-please-change-in-production") {
+    throw new Error("COOKIE_SECRET must be set in production");
+  }
+  if (env.ADMIN_SECRET === "dev-admin-secret") {
+    throw new Error("ADMIN_SECRET must be set in production");
+  }
+}
