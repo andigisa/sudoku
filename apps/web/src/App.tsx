@@ -4,6 +4,7 @@ import TournamentCard from "./components/TournamentCard";
 import TournamentView from "./views/TournamentView";
 import LeaderboardView from "./views/LeaderboardView";
 import StatsView from "./views/StatsView";
+import LegalView from "./views/LegalView";
 import AuthModal from "./components/AuthModal";
 import AccountSettings from "./components/AccountSettings";
 import ThemePickerModal from "./components/ThemePickerModal";
@@ -38,7 +39,8 @@ import {
   type CompletedGameRecord
 } from "./storage";
 
-type ViewState = "home" | "game" | "tournament" | "leaderboard" | "stats";
+type LegalPage = "privacy" | "terms" | "impressum";
+type ViewState = "home" | "game" | "tournament" | "leaderboard" | "stats" | "legal";
 
 interface HistoryState {
   past: SerializedGameState[];
@@ -62,6 +64,7 @@ const difficultyIcons: Record<DifficultyDto, string> = {
 
 export default function App() {
   const [view, setView] = useState<ViewState>("home");
+  const [legalPage, setLegalPage] = useState<LegalPage>("privacy");
   const [history, setHistory] = useState<HistoryState>({ past: [], present: null, future: [] });
   const [difficulty, setDifficulty] = useState<DifficultyDto>("easy");
   const [loading, setLoading] = useState(false);
@@ -839,6 +842,13 @@ export default function App() {
             </div>
           </div>
         </main>
+        <footer className="legal-footer">
+          <button type="button" onClick={() => { setLegalPage("privacy"); setView("legal"); }}>Privacy Policy</button>
+          <span className="legal-footer-sep">|</span>
+          <button type="button" onClick={() => { setLegalPage("terms"); setView("legal"); }}>Terms of Service</button>
+          <span className="legal-footer-sep">|</span>
+          <button type="button" onClick={() => { setLegalPage("impressum"); setView("legal"); }}>Impressum</button>
+        </footer>
         {bottomNav}
       </>
     );
@@ -878,6 +888,16 @@ export default function App() {
         {authModals}
         <StatsView onBack={() => setView("home")} />
         {bottomNav}
+      </>
+    );
+  }
+
+  // Legal pages
+  if (view === "legal") {
+    return (
+      <>
+        {authModals}
+        <LegalView page={legalPage} onBack={() => setView("home")} />
       </>
     );
   }
