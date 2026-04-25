@@ -251,7 +251,8 @@ export default function App() {
 
       if (event.key >= "1" && event.key <= "9") {
         event.preventDefault();
-        updateGame((state) => applyInput(state, state.selectedCell!, Number(event.key)));
+        const sol = solutionRef.current ? Array.from(solutionRef.current, Number) : undefined;
+        updateGame((state) => applyInput(state, state.selectedCell!, Number(event.key), sol));
       } else if (event.key === "Backspace" || event.key === "Delete" || event.key === "0") {
         event.preventDefault();
         updateGame((state) => clearCell(state, state.selectedCell!));
@@ -1048,7 +1049,10 @@ export default function App() {
               onClick={() =>
                 history.present &&
                 history.present.selectedCell !== null &&
-                updateGame((state) => applyInput(state, state.selectedCell!, digit))
+                updateGame((state) => {
+                  const sol = solutionRef.current ? Array.from(solutionRef.current, Number) : undefined;
+                  return applyInput(state, state.selectedCell!, digit, sol);
+                })
               }
               type="button"
             >

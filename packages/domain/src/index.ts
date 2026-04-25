@@ -111,7 +111,8 @@ export function restartGame(state: SerializedGameState): SerializedGameState {
 export function applyInput(
   state: SerializedGameState,
   cellIndex: number,
-  value: number
+  value: number,
+  solution?: number[]
 ): SerializedGameState {
   assertValidIndex(cellIndex);
   assertValidValue(value);
@@ -120,7 +121,7 @@ export function applyInput(
     return state;
   }
 
-  return state.noteMode ? toggleCellNote(state, cellIndex, value) : setCellValue(state, cellIndex, value);
+  return state.noteMode ? toggleCellNote(state, cellIndex, value) : setCellValue(state, cellIndex, value, solution);
 }
 
 export function clearCell(state: SerializedGameState, cellIndex: number): SerializedGameState {
@@ -140,7 +141,8 @@ export function clearCell(state: SerializedGameState, cellIndex: number): Serial
 export function setCellValue(
   state: SerializedGameState,
   cellIndex: number,
-  value: number
+  value: number,
+  solution?: number[]
 ): SerializedGameState {
   assertValidIndex(cellIndex);
   assertValidValue(value);
@@ -149,7 +151,9 @@ export function setCellValue(
     return state;
   }
 
-  const isMistake = getPeerIndexes(cellIndex).some((peer) => state.board[peer] === value);
+  const isMistake = solution
+    ? value !== solution[cellIndex]
+    : getPeerIndexes(cellIndex).some((peer) => state.board[peer] === value);
 
   const next = cloneGameState(state);
   next.board[cellIndex] = value;
