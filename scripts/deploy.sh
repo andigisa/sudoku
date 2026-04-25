@@ -40,8 +40,9 @@ cp -r "$ROOT_DIR/packages/domain/dist" "$DEPLOY_DIR/packages/domain/dist"
 # 4. Root production package.json (flat deps, file: refs for workspace packages)
 cp "$ROOT_DIR/scripts/deploy-package.json" "$DEPLOY_DIR/package.json"
 
-# 5. Startup script
+# 5. Startup script and CJS entry point (for LiteSpeed/require() hosts)
 cp "$ROOT_DIR/scripts/start.sh" "$DEPLOY_DIR/start.sh"
+cp "$ROOT_DIR/scripts/server.cjs" "$DEPLOY_DIR/server.cjs"
 
 # 6. .gitignore for the deploy branch
 cat > "$DEPLOY_DIR/.gitignore" << 'GITIGNORE'
