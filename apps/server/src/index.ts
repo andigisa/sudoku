@@ -65,8 +65,8 @@ await app.register(authRoutes);
 await app.register(syncRoutes);
 
 if (env.NODE_ENV === "production") {
-  await app.register(fastifyStatic, { root: webDistDir });
-  app.get("/*", async (_request, reply) => reply.sendFile("index.html"));
+  await app.register(fastifyStatic, { root: webDistDir, wildcard: false });
+  app.setNotFoundHandler(async (_request, reply) => reply.sendFile("index.html"));
 }
 
 app

@@ -8,4 +8,5 @@ playwright-report
 test-results
 *.tsbuildinfo
 apps/server/data
+deploy/
 .gemini/
