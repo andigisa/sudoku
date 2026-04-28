@@ -1,12 +1,8 @@
 import type { DifficultyDto, PuzzleResponseDto } from "@sudoku/contracts";
 
-export interface PuzzleWithSolution extends PuzzleResponseDto {
-  solution: string;
-}
+type PuzzlePack = Record<DifficultyDto, PuzzleResponseDto[]>;
 
-type PuzzlePack = Record<DifficultyDto, PuzzleWithSolution[]>;
-
-const easy: PuzzleWithSolution[] = [
+const easy: PuzzleResponseDto[] = [
   {
     puzzle_id: "easy-001",
     givens: "000260701680070090190004500820100040004602900050003028009300074040050036703018000",
@@ -25,7 +21,7 @@ const easy: PuzzleWithSolution[] = [
   }
 ];
 
-const medium: PuzzleWithSolution[] = [
+const medium: PuzzleResponseDto[] = [
   {
     puzzle_id: "medium-001",
     givens: "530070000600195000098000060800060003400803001700020006060000280000419005000080079",
@@ -44,7 +40,7 @@ const medium: PuzzleWithSolution[] = [
   }
 ];
 
-const hard: PuzzleWithSolution[] = [
+const hard: PuzzleResponseDto[] = [
   {
     puzzle_id: "hard-001",
     givens: "000000907000420180000705026100904000050000040000507009920108000034059000507000000",
@@ -63,7 +59,7 @@ const hard: PuzzleWithSolution[] = [
   }
 ];
 
-const expert: PuzzleWithSolution[] = [
+const expert: PuzzleResponseDto[] = [
   {
     puzzle_id: "expert-001",
     givens: "300200000000107000706030500070009080900020004010800050009040301000702000000008006",
@@ -86,18 +82,12 @@ const puzzlePack: PuzzlePack = { easy, medium, hard, expert };
 
 const allPuzzles = [...easy, ...medium, ...hard, ...expert];
 
-export function getRandomPuzzle(difficulty: DifficultyDto): PuzzleWithSolution {
+export function getRandomPuzzle(difficulty: DifficultyDto): PuzzleResponseDto {
   const puzzles = puzzlePack[difficulty];
   const index = Math.floor(Math.random() * puzzles.length);
   return puzzles[index];
 }
 
-export function getPuzzleById(puzzleId: string): PuzzleWithSolution | undefined {
+export function getPuzzleById(puzzleId: string): PuzzleResponseDto | undefined {
   return allPuzzles.find((p) => p.puzzle_id === puzzleId);
-}
-
-/** Return only the public fields (no solution) */
-export function toPublicPuzzle(puzzle: PuzzleWithSolution): PuzzleResponseDto {
-  const { solution: _, ...pub } = puzzle;
-  return pub;
 }

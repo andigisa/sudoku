@@ -4,7 +4,7 @@ import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import fastifyCookie from "@fastify/cookie";
 import { difficultySchema, hintRequestSchema } from "@sudoku/contracts";
-import { getRandomPuzzle, getPuzzleById, toPublicPuzzle } from "./puzzles.js";
+import { getRandomPuzzle, getPuzzleById } from "./puzzles.js";
 import { env } from "./env.js";
 import { initDatabase, persist } from "./db/index.js";
 import guestIdentityPlugin from "./plugins/guestIdentity.js";
@@ -56,14 +56,14 @@ async function main() {
     }
 
     const puzzle = getRandomPuzzle(parsed.data);
-    return toPublicPuzzle(puzzle);
+    return puzzle;
   });
 
   app.get("/api/v1/puzzles/:id", async (request, reply) => {
     const { id } = request.params as { id: string };
     const puzzle = getPuzzleById(id);
     if (!puzzle) return reply.status(404).send({ message: "Puzzle not found" });
-    return toPublicPuzzle(puzzle);
+    return puzzle;
   });
 
   app.post("/api/v1/puzzles/:id/hint", async (request, reply) => {
