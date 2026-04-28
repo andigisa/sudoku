@@ -193,6 +193,19 @@ export default function App() {
     [history.present]
   );
 
+  const mistakeCells = useMemo(() => {
+    if (!history.present || !solutionRef.current) return new Set<number>();
+    const set = new Set<number>();
+    const sol = solutionRef.current;
+    for (let i = 0; i < 81; i++) {
+      const v = history.present.board[i];
+      if (v > 0 && history.present.givens[i] === 0 && v !== sol[i]) {
+        set.add(i);
+      }
+    }
+    return set;
+  }, [history.present]);
+
   const highlightedCells = useMemo(() => {
     if (!history.present || history.present.selectedCell === null) {
       return new Set<number>();
@@ -967,6 +980,7 @@ export default function App() {
                     const selected = history.present!.selectedCell === index;
                     const given = isGivenCell(history.present!, index);
                     const conflict = highlightConflicts && conflicts.has(index);
+                    const mistake = mistakeCells.has(index);
                     const related = highlightedCells.has(index);
                     const matching = highlightMatches && matchingValueCells.has(index);
                     const isUserEntry = !given && value > 0;
@@ -977,8 +991,8 @@ export default function App() {
                       isUserEntry ? "user-entry" : "",
                       selected ? "selected" : "",
                       !selected && related ? "related" : "",
-                      !selected && conflict ? "conflict" : "",
-                      !selected && !conflict && matching ? "matching" : ""
+                      !selected && (conflict || mistake) ? "conflict" : "",
+                      !selected && !conflict && !mistake && matching ? "matching" : ""
                     ]
                       .filter(Boolean)
                       .join(" ");
