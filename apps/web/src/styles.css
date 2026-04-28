@@ -606,6 +606,10 @@ button, input {
   color: var(--error) !important;
 }
 
+.cell.mistake {
+  color: var(--error) !important;
+}
+
 
 /* Notes grid */
 .notes-grid {

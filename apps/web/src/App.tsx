@@ -990,6 +990,7 @@ export default function App() {
                       given ? "given" : "",
                       isUserEntry ? "user-entry" : "",
                       selected ? "selected" : "",
+                      mistake ? "mistake" : "",
                       !selected && related ? "related" : "",
                       !selected && (conflict || mistake) ? "conflict" : "",
                       !selected && !conflict && !mistake && matching ? "matching" : ""
