@@ -433,6 +433,86 @@ select.admin-input {
 .badge-upcoming { background: var(--admin-badge-upcoming); }
 .badge-ended { background: var(--admin-badge-ended); }
 
+/* User management */
+.user-tab-bar {
+  display: flex;
+  gap: 4px;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.user-tab {
+  padding: 6px 14px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--admin-text-dim);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.user-tab.active {
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.user-toolbar {
+  margin-bottom: 16px;
+}
+
+.user-search-wrapper {
+  position: relative;
+  max-width: 360px;
+}
+
+.user-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: var(--admin-text-dim);
+}
+
+.user-search {
+  padding-left: 36px !important;
+}
+
+.admin-table-wrapper {
+  overflow-x: auto;
+}
+
+.sortable-th {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.sortable-th:hover {
+  color: var(--admin-primary);
+}
+
+.sort-icon {
+  font-size: 16px !important;
+  vertical-align: middle;
+  margin-left: 2px;
+}
+
+.empty-row {
+  text-align: center;
+  opacity: 0.6;
+  padding: 24px 12px !important;
+}
+
+.dim {
+  opacity: 0.4;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .admin-header {

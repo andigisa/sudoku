@@ -147,6 +147,86 @@ export async function adminRoutes(app: FastifyInstance) {
     return listAllPuzzleIds();
   });
 
+  // ── Users ─────────────────────────────────────────────────────────────────
+
+  app.get("/api/v1/admin/users", async (request, reply) => {
+    if (!requireAdmin(request, reply)) return;
+
+    const rows = db.all(sql`
+      SELECT
+        u.id,
+        u.email,
+        u.display_name,
+        u.guest_id,
+        u.created_at,
+        COALESCE(gs.total_games, 0) as total_games,
+        COALESCE(gs.completed_games, 0) as completed_games,
+        COALESCE(gs.total_elapsed_ms, 0) as total_elapsed_ms,
+        gs.last_active
+      FROM user u
+      LEFT JOIN (
+        SELECT
+          COALESCE(user_id, guest_id) as player_id,
+          COUNT(*) as total_games,
+          SUM(CASE WHEN completed_at IS NOT NULL THEN 1 ELSE 0 END) as completed_games,
+          SUM(elapsed_ms) as total_elapsed_ms,
+          MAX(started_at) as last_active
+        FROM game_sessions
+        WHERE user_id IS NOT NULL
+        GROUP BY user_id
+      ) gs ON gs.player_id = u.id
+      ORDER BY u.created_at DESC
+    `) as Array<Record<string, unknown>>;
+
+    return rows.map((row) => ({
+      id: row.id as string,
+      email: row.email as string,
+      displayName: row.display_name as string | null,
+      guestId: row.guest_id as string | null,
+      createdAt: row.created_at as string,
+      totalGames: row.total_games as number,
+      completedGames: row.completed_games as number,
+      totalElapsedMs: row.total_elapsed_ms as number,
+      lastActive: (row.last_active as string | null) ?? (row.created_at as string)
+    }));
+  });
+
+  app.get("/api/v1/admin/guests", async (request, reply) => {
+    if (!requireAdmin(request, reply)) return;
+
+    const rows = db.all(sql`
+      SELECT
+        g.guest_id,
+        g.created_at,
+        COALESCE(gs.total_games, 0) as total_games,
+        COALESCE(gs.completed_games, 0) as completed_games,
+        gs.last_active,
+        CASE WHEN u.id IS NOT NULL THEN 1 ELSE 0 END as has_account
+      FROM guests g
+      LEFT JOIN (
+        SELECT
+          guest_id,
+          COUNT(*) as total_games,
+          SUM(CASE WHEN completed_at IS NOT NULL THEN 1 ELSE 0 END) as completed_games,
+          MAX(started_at) as last_active
+        FROM game_sessions
+        GROUP BY guest_id
+      ) gs ON gs.guest_id = g.guest_id
+      LEFT JOIN user u ON u.guest_id = g.guest_id
+      ORDER BY g.created_at DESC
+      LIMIT 200
+    `) as Array<Record<string, unknown>>;
+
+    return rows.map((row) => ({
+      guestId: row.guest_id as string,
+      createdAt: row.created_at as string,
+      totalGames: row.total_games as number,
+      completedGames: row.completed_games as number,
+      lastActive: (row.last_active as string | null) ?? (row.created_at as string),
+      hasAccount: (row.has_account as number) === 1
+    }));
+  });
+
   // ── Stats ─────────────────────────────────────────────────────────────────
 
   app.get("/api/v1/admin/stats", async (request, reply) => {

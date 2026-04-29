@@ -33,6 +33,27 @@ export interface PuzzleOption {
   difficulty: string;
 }
 
+export interface AdminUser {
+  id: string;
+  email: string;
+  displayName: string | null;
+  guestId: string | null;
+  createdAt: string;
+  totalGames: number;
+  completedGames: number;
+  totalElapsedMs: number;
+  lastActive: string;
+}
+
+export interface AdminGuest {
+  guestId: string;
+  createdAt: string;
+  totalGames: number;
+  completedGames: number;
+  lastActive: string;
+  hasAccount: boolean;
+}
+
 export async function adminLogin(password: string): Promise<boolean> {
   const res = await fetch("/api/v1/admin/login", {
     method: "POST",
@@ -66,6 +87,18 @@ export async function fetchAdminTournaments(): Promise<Tournament[]> {
 export async function fetchAdminPuzzles(): Promise<PuzzleOption[]> {
   const res = await fetch("/api/v1/admin/puzzles");
   if (!res.ok) throw new Error("Failed to fetch puzzles");
+  return res.json();
+}
+
+export async function fetchAdminUsers(): Promise<AdminUser[]> {
+  const res = await fetch("/api/v1/admin/users");
+  if (!res.ok) throw new Error("Failed to fetch users");
+  return res.json();
+}
+
+export async function fetchAdminGuests(): Promise<AdminGuest[]> {
+  const res = await fetch("/api/v1/admin/guests");
+  if (!res.ok) throw new Error("Failed to fetch guests");
   return res.json();
 }
 

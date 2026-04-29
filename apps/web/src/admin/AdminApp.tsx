@@ -3,8 +3,9 @@ import { adminCheckAuth, adminLogout } from "./api";
 import AdminLogin from "./AdminLogin";
 import AdminDashboard from "./AdminDashboard";
 import TournamentManager from "./TournamentManager";
+import UserManager from "./UserManager";
 
-type Tab = "dashboard" | "tournaments";
+type Tab = "dashboard" | "tournaments" | "users";
 
 export default function AdminApp() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
@@ -43,6 +44,14 @@ export default function AdminApp() {
             <span className="material-symbols-outlined">trophy</span>
             Tournaments
           </button>
+          <button
+            className={`admin-tab ${tab === "users" ? "active" : ""}`}
+            onClick={() => setTab("users")}
+            type="button"
+          >
+            <span className="material-symbols-outlined">group</span>
+            Users
+          </button>
         </nav>
         <button
           className="admin-logout"
@@ -55,6 +64,7 @@ export default function AdminApp() {
       <main className="admin-main">
         {tab === "dashboard" && <AdminDashboard />}
         {tab === "tournaments" && <TournamentManager />}
+        {tab === "users" && <UserManager />}
       </main>
     </div>
   );
