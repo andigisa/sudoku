@@ -10,8 +10,8 @@ export default fp(
       // Skip for unauthenticated guests (cookie is SameSite=strict)
       if (!request.isAuthenticated) return;
 
-      // Skip admin bearer-token routes
-      if (request.url.startsWith("/api/v1/admin/")) return;
+      // Skip admin routes using bearer token auth (not cookie auth)
+      if (request.url.startsWith("/api/v1/admin/") && request.headers.authorization) return;
 
       const host = request.headers.host;
       if (!host) {

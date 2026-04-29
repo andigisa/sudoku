@@ -91,3 +91,7 @@ export function getRandomPuzzle(difficulty: DifficultyDto): PuzzleResponseDto {
 export function getPuzzleById(puzzleId: string): PuzzleResponseDto | undefined {
   return allPuzzles.find((p) => p.puzzle_id === puzzleId);
 }
+
+export function listAllPuzzleIds(): Array<{ puzzle_id: string; difficulty: string }> {
+  return allPuzzles.map((p) => ({ puzzle_id: p.puzzle_id, difficulty: p.difficulty }));
+}

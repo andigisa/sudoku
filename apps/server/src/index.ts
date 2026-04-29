@@ -89,7 +89,12 @@ async function main() {
 
   if (env.NODE_ENV === "production") {
     await app.register(fastifyStatic, { root: webDistDir, wildcard: false });
-    app.setNotFoundHandler(async (_request, reply) => reply.sendFile("index.html"));
+    app.setNotFoundHandler(async (request, reply) => {
+      if (request.url.startsWith("/admin")) {
+        return reply.sendFile("admin.html");
+      }
+      return reply.sendFile("index.html");
+    });
   }
 
   app
