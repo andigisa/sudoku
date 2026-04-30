@@ -5,6 +5,7 @@ import TournamentView from "./views/TournamentView";
 import LeaderboardView from "./views/LeaderboardView";
 import StatsView from "./views/StatsView";
 import LegalView from "./views/LegalView";
+import HowToPlayView from "./views/HowToPlayView";
 import AuthModal from "./components/AuthModal";
 import AccountSettings from "./components/AccountSettings";
 import ThemePickerModal from "./components/ThemePickerModal";
@@ -41,7 +42,7 @@ import {
 } from "./storage";
 
 type LegalPage = "privacy" | "terms" | "impressum";
-type ViewState = "home" | "game" | "tournament" | "leaderboard" | "stats" | "legal";
+type ViewState = "home" | "game" | "tournament" | "leaderboard" | "stats" | "legal" | "help";
 
 interface HistoryState {
   past: SerializedGameState[];
@@ -66,6 +67,7 @@ const difficultyIcons: Record<DifficultyDto, string> = {
 export default function App() {
   const [view, setView] = useState<ViewState>("home");
   const [legalPage, setLegalPage] = useState<LegalPage>("privacy");
+  const helpReturnRef = useRef<ViewState>("home");
   const [history, setHistory] = useState<HistoryState>({ past: [], present: null, future: [] });
   const [difficulty, setDifficulty] = useState<DifficultyDto>("easy");
   const [loading, setLoading] = useState(false);
@@ -804,6 +806,16 @@ export default function App() {
               />
             </div>
           </div>
+          <div style={{ textAlign: "center", marginTop: 16 }}>
+            <button
+              className="help-link-btn"
+              type="button"
+              onClick={() => { helpReturnRef.current = "home"; setView("help"); }}
+            >
+              <span className="material-symbols-outlined">help_outline</span>
+              How to Play Sudoku
+            </button>
+          </div>
           <footer className="legal-footer">
             <button type="button" onClick={() => { setLegalPage("privacy"); setView("legal"); }}>Privacy Policy</button>
             <span className="legal-footer-sep">|</span>
@@ -851,6 +863,16 @@ export default function App() {
         {authModals}
         <StatsView onBack={() => setView("home")} />
         {bottomNav}
+      </>
+    );
+  }
+
+  // How to play
+  if (view === "help") {
+    return (
+      <>
+        {authModals}
+        <HowToPlayView onBack={() => setView(helpReturnRef.current)} />
       </>
     );
   }
@@ -909,6 +931,15 @@ export default function App() {
                 type="button"
               >
                 New Game
+              </button>
+              <button
+                className="btn-ghost"
+                onClick={() => { helpReturnRef.current = "game"; setView("help"); }}
+                type="button"
+                aria-label="How to play"
+                style={{ padding: 4 }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "1.1rem" }}>help_outline</span>
               </button>
             </div>
           </div>
