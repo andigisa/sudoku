@@ -1329,7 +1329,7 @@ button, input {
 .legal-shell {
   max-width: 640px;
   margin: 0 auto;
-  padding: 16px 20px 40px;
+  padding: 72px 20px 40px;
   overflow-y: auto;
 }
 
@@ -1375,7 +1375,7 @@ button, input {
 .help-shell {
   max-width: 640px;
   margin: 0 auto;
-  padding: 16px 20px 40px;
+  padding: 72px 20px 40px;
   overflow-y: auto;
 }
 
