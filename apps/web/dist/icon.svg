@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#1f3b5c"/>
+  <rect x="96" y="96" width="320" height="320" rx="28" fill="#fbfaf4"/>
+  <g stroke="#1f3b5c" stroke-width="16">
+    <path d="M202 96v320"/>
+    <path d="M310 96v320"/>
+    <path d="M96 202h320"/>
+    <path d="M96 310h320"/>
+  </g>
+  <g fill="#d66f3d" font-family="Georgia, serif" font-size="96" font-weight="700">
+    <text x="134" y="188">5</text>
+    <text x="246" y="292">7</text>
+    <text x="138" y="394">9</text>
+  </g>
+</svg>
